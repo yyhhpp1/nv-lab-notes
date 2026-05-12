@@ -62,6 +62,17 @@ body {
   padding: 2.5rem 2rem 5rem;
 }
 
+/* ── Nav ── */
+.nav {
+  display: flex; align-items: center; gap: 1.2rem;
+  margin-bottom: 2rem; font-size: 0.88rem;
+}
+.nav a {
+  color: var(--blue-mid); text-decoration: none;
+}
+.nav a:hover { text-decoration: underline; }
+.nav .sep { color: var(--gray-rule); }
+
 /* ── Title ── */
 .title-block { border-bottom: 2px solid var(--blue-mid); padding-bottom: 1.2rem; margin-bottom: 2rem; }
 .title-block h1 { font-size: 1.7rem; font-weight: 700; color: var(--blue-dark); line-height: 1.3; margin-bottom: 0.3rem; }
@@ -161,6 +172,12 @@ tbody tr:last-child td { border-bottom: none; }
 </style>
 </head>
 <body>
+
+<nav class="nav">
+  <a href="index.html">&#8592; Home</a>
+  <span class="sep">|</span>
+  <a href="superresolution_table.html">Superresolution Table</a>
+</nav>
 
 <div class="title-block">
   <h1>Positional Accuracy of NV Centers:<br>From a Single Emitter to the General <em>M</em>-Emitter Problem</h1>
