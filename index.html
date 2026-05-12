@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NV Lab Notes</title>
+<style>
+:root {
+  --blue-dark:  #1f4e79;
+  --blue-mid:   #2e75b6;
+  --blue-box:   #ebf3fb;
+  --blue-card:  #f4f8fd;
+  --gray-text:  #3d3d3a;
+  --gray-mid:   #6b6b68;
+  --gray-rule:  #cccccc;
+  --green:      #3b6d11;
+  --bg:         #ffffff;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --blue-dark:  #93c5e8;
+    --blue-mid:   #7eb8e8;
+    --blue-box:   #1a2a3a;
+    --blue-card:  #1e1e1c;
+    --gray-text:  #d4d2c8;
+    --gray-mid:   #9a9890;
+    --gray-rule:  #444441;
+    --green:      #7abf44;
+    --bg:         #1a1a18;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--gray-text);
+  background: var(--bg);
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
+}
+
+/* ── Header ── */
+header {
+  border-bottom: 2px solid var(--blue-mid);
+  padding-bottom: 1.4rem;
+  margin-bottom: 2.2rem;
+}
+header h1 {
+  font-size: 2rem; font-weight: 700;
+  color: var(--blue-dark); line-height: 1.2;
+  margin-bottom: 0.3rem;
+}
+header .tagline {
+  font-size: 1rem; color: var(--gray-mid); font-style: italic;
+}
+header .meta {
+  margin-top: 0.7rem; font-size: 0.85rem; color: var(--gray-mid);
+}
+header .meta a { color: var(--blue-mid); text-decoration: none; }
+header .meta a:hover { text-decoration: underline; }
+
+/* ── About blurb ── */
+.about {
+  background: var(--blue-box);
+  border-left: 4px solid var(--blue-mid);
+  border-radius: 0 6px 6px 0;
+  padding: 0.9rem 1.2rem;
+  margin-bottom: 2.5rem;
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+/* ── Section heading ── */
+h2 {
+  font-size: 0.8rem; font-weight: 700;
+  color: var(--gray-mid);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 1rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--gray-rule);
+}
+
+/* ── Note cards ── */
+.cards { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 3rem; }
+
+.card {
+  background: var(--blue-card);
+  border: 1px solid var(--gray-rule);
+  border-radius: 8px;
+  padding: 1.1rem 1.3rem 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 1.1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.card:hover {
+  box-shadow: 0 2px 12px rgba(46,117,182,0.12);
+  border-color: var(--blue-mid);
+}
+.card-num {
+  font-size: 1.4rem; font-weight: 700;
+  color: var(--blue-mid); opacity: 0.4;
+  line-height: 1.2; padding-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.card-body {}
+.card-title {
+  font-size: 1rem; font-weight: 700;
+  color: var(--blue-dark); line-height: 1.3;
+  margin-bottom: 0.25rem;
+}
+.card-desc {
+  font-size: 0.875rem; color: var(--gray-mid);
+  line-height: 1.55; margin-bottom: 0.55rem;
+}
+.card-tags {
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.tag {
+  font-size: 0.73rem; padding: 1px 8px;
+  border-radius: 12px; border: 1px solid var(--gray-rule);
+  color: var(--gray-mid); white-space: nowrap;
+}
+.card-links {
+  display: flex; gap: 10px; margin-top: 0.6rem; font-size: 0.82rem;
+}
+.card-links a {
+  color: var(--blue-mid); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.card-links a:hover { text-decoration: underline; }
+
+/* ── Reference table card ── */
+.ref-card {
+  background: var(--blue-card);
+  border: 1px solid var(--gray-rule);
+  border-radius: 8px;
+  padding: 1.1rem 1.3rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  margin-bottom: 3rem;
+}
+.ref-card:hover {
+  box-shadow: 0 2px 12px rgba(46,117,182,0.12);
+  border-color: var(--blue-mid);
+}
+.ref-card-title {
+  font-size: 1rem; font-weight: 700;
+  color: var(--blue-dark); margin-bottom: 0.25rem;
+}
+.ref-card-desc { font-size: 0.875rem; color: var(--gray-mid); line-height: 1.55; margin-bottom: 0.55rem; }
+
+/* ── Topics list ── */
+.topics {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  margin-bottom: 3rem;
+}
+.topic-pill {
+  font-size: 0.82rem; padding: 3px 12px;
+  border-radius: 20px;
+  background: var(--blue-box);
+  border: 1px solid var(--blue-mid);
+  color: var(--blue-dark);
+}
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--gray-rule);
+  padding-top: 1.2rem;
+  font-size: 0.82rem;
+  color: var(--gray-mid);
+  line-height: 1.7;
+}
+footer a { color: var(--blue-mid); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  body { padding: 2rem 1rem 4rem; }
+  header h1 { font-size: 1.5rem; }
+  .card { grid-template-columns: 1fr; }
+  .card-num { font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>NV Lab Notes</h1>
+  <div class="tagline">Technical notes on NV center physics — superresolution, localization theory, and quantum sensing</div>
+  <div class="meta">
+    For group members &nbsp;·&nbsp;
+    <a href="https://github.com/yourusername/nv-lab-notes" target="_blank">GitHub ↗</a>
+  </div>
+</header>
+
+<div class="about">
+  Running collection of self-contained writeups started during a literature review on superresolution techniques for NV centers. Each note includes full step-by-step derivations pitched at a first-year grad student in quantum sensing. Click any <strong>▶ Derive</strong> button inside a note to expand the derivation inline.
+</div>
+
+<!-- ── Notes ── -->
+<h2>Notes</h2>
+<div class="cards">
+
+  <a class="card" href="NV_sigma_scaling_v2.html">
+    <div class="card-num">01</div>
+    <div class="card-body">
+      <div class="card-title">Positional Accuracy of NV Centers: σ Scaling from Single Emitter to the General Case</div>
+      <div class="card-desc">
+        Builds up from the simplest single-NV baseline through the two-emitter Rayleigh curse, the combinatorial catastrophe of M emitters, and the fully general unknown-M problem. Ends with how superresolution rescues the estimation problem by enforcing M<sub>eff</sub> ≤ 1.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Fisher information</span>
+        <span class="tag">Cramér–Rao bound</span>
+        <span class="tag">Rayleigh curse</span>
+        <span class="tag">σ scaling</span>
+        <span class="tag">superresolution</span>
+        <span class="tag">localization</span>
+      </div>
+      <div class="card-links">
+        <a href="NV_sigma_scaling_v2.html">&#128196; HTML (with derivations)</a>
+        <a href="NV_sigma_scaling.tex">&#128196; LaTeX source</a>
+      </div>
+    </div>
+  </a>
+
+</div>
+
+<!-- ── Reference tables ── -->
+<h2>Reference Tables</h2>
+
+<a class="ref-card" href="superresolution_table.html">
+  <div class="ref-card-title">&#128202; Superresolution Experiments on NV Centers — Comparison Table</div>
+  <div class="ref-card-desc">
+    Side-by-side comparison of STED, GSD, CSD, STORM, spin-RESOLFT, and quantum-phase experiments:
+    PSF FWHM, localization precision, photons per pixel, time per pixel, scan parameters, and total scan time for the flagship figure of each paper.
+    Confirmed values are distinguished from estimates. Filterable by technique.
+  </div>
+  <div class="card-tags">
+    <span class="tag">STED</span>
+    <span class="tag">GSD</span>
+    <span class="tag">CSD</span>
+    <span class="tag">STORM</span>
+    <span class="tag">spin-RESOLFT</span>
+    <span class="tag">acquisition time</span>
+  </div>
+</a>
+
+<!-- ── Topics covered ── -->
+<h2>Topics Covered So Far</h2>
+<div class="topics">
+  <span class="topic-pill">Resolution vs. positional accuracy</span>
+  <span class="topic-pill">Fisher information</span>
+  <span class="topic-pill">Cramér–Rao bound</span>
+  <span class="topic-pill">Single-emitter localization</span>
+  <span class="topic-pill">Two-emitter Rayleigh curse</span>
+  <span class="topic-pill">M-emitter Fisher matrix</span>
+  <span class="topic-pill">Model order selection</span>
+  <span class="topic-pill">STED / GSD / CSD</span>
+  <span class="topic-pill">Spin-RESOLFT</span>
+  <span class="topic-pill">STORM / SMLM</span>
+  <span class="topic-pill">M_eff and superresolution rescue</span>
+  <span class="topic-pill">Scan time vs. resolution tradeoff</span>
+</div>
+
+<!-- ── Footer ── -->
+<footer>
+  Personal study notes made shareable. Errors and suggestions welcome — open an issue on
+  <a href="https://github.com/yourusername/nv-lab-notes" target="_blank">GitHub</a>
+  or flag in the group chat. &nbsp;·&nbsp; Last updated: 2026.
+</footer>
+
+</body>
+</html>
