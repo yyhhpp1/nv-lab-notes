@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Positional Accuracy of NV Centers: σ Scaling</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['$','$']],
+    displayMath: [['$$','$$']],
+    tags: 'none',
+    macros: {
+      spsf:  '\\sigma_{\\mathrm{PSF}}',
+      seff:  '\\sigma_{\\mathrm{PSF}}^{\\mathrm{eff}}',
+      sx:    '\\sigma_{x_i}',
+      sd:    '\\sigma_d',
+      sxbar: '\\sigma_{\\bar{x}}',
+      E:     '\\mathbb{E}',
+      Var:   '\\mathrm{Var}'
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+:root {
+  --blue-dark:  #1f4e79;
+  --blue-mid:   #2e75b6;
+  --blue-box:   #ebf3fb;
+  --blue-der:   #f0f7e6;
+  --blue-derborder: #5a9e2f;
+  --gray-text:  #3d3d3a;
+  --gray-mid:   #6b6b68;
+  --gray-rule:  #cccccc;
+  --bg:         #ffffff;
+  --mono:       "Courier New", monospace;
+  --sans:       -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --blue-dark:  #93c5e8;
+    --blue-mid:   #7eb8e8;
+    --blue-box:   #1a2a3a;
+    --blue-der:   #1a2a1a;
+    --blue-derborder: #5a9e2f;
+    --gray-text:  #d4d2c8;
+    --gray-mid:   #9a9890;
+    --gray-rule:  #444441;
+    --bg:         #1a1a18;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--gray-text);
+  background: var(--bg);
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 5rem;
+}
+
+/* ── Title ── */
+.title-block { border-bottom: 2px solid var(--blue-mid); padding-bottom: 1.2rem; margin-bottom: 2rem; }
+.title-block h1 { font-size: 1.7rem; font-weight: 700; color: var(--blue-dark); line-height: 1.3; margin-bottom: 0.3rem; }
+.title-block .subtitle { font-size: 1rem; color: var(--gray-mid); font-style: italic; margin-top: 0.4rem; }
+
+/* ── Sections ── */
+body { counter-reset: section; }
+h2 {
+  font-size: 1.12rem; font-weight: 700; color: var(--blue-dark);
+  margin: 2.4rem 0 0.6rem; padding-bottom: 0.25rem;
+  border-bottom: 1.5px solid var(--blue-mid);
+}
+h2::before { counter-increment: section; content: counter(section) ". "; }
+h3 { font-size: 1rem; font-weight: 700; color: var(--blue-mid); margin: 1.4rem 0 0.4rem; }
+p  { margin-bottom: 0.85rem; }
+strong { font-weight: 700; }
+em     { font-style: italic; }
+hr { border: none; border-top: 1px solid var(--gray-rule); margin: 2rem 0; }
+
+/* ── Key result box ── */
+.key-result {
+  background: var(--blue-box);
+  border-left: 4px solid var(--blue-mid);
+  border-radius: 0 6px 6px 0;
+  padding: 0.85rem 1.1rem 0.7rem;
+  margin: 1rem 0 0.5rem;
+}
+.key-result .eq-label {
+  font-size: 0.77rem; color: var(--gray-mid); text-align: right; margin-top: 0.25rem;
+}
+
+/* ── Display eq (non-boxed) ── */
+.display-eq { text-align: center; margin: 0.85rem 0; overflow-x: auto; }
+
+/* ── Derivation toggle button ── */
+.deriv-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 0.55rem; margin-bottom: 0.2rem;
+  padding: 3px 11px 3px 8px;
+  font-size: 0.8rem; font-family: var(--sans);
+  color: var(--blue-derborder);
+  background: transparent;
+  border: 1px solid var(--blue-derborder);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+.deriv-btn:hover { background: var(--blue-der); }
+.deriv-btn .arrow { font-size: 0.7rem; transition: transform 0.2s; display: inline-block; }
+.deriv-btn.open .arrow { transform: rotate(90deg); }
+
+/* ── Derivation panel ── */
+.deriv-panel {
+  display: none;
+  background: var(--blue-der);
+  border-left: 3px solid var(--blue-derborder);
+  border-radius: 0 6px 6px 0;
+  padding: 1rem 1.2rem 0.9rem;
+  margin: 0.3rem 0 1.1rem;
+  font-size: 0.93rem;
+  line-height: 1.85;
+}
+.deriv-panel.open { display: block; }
+.deriv-panel p  { margin-bottom: 0.7rem; }
+.deriv-panel p:last-child { margin-bottom: 0; }
+.deriv-panel .step {
+  background: rgba(0,0,0,0.04);
+  border-radius: 5px;
+  padding: 0.5rem 0.9rem;
+  margin: 0.55rem 0;
+}
+@media (prefers-color-scheme: dark) {
+  .deriv-panel .step { background: rgba(255,255,255,0.05); }
+}
+.deriv-panel .step-label {
+  font-size: 0.75rem; font-weight: 700; color: var(--blue-derborder);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem;
+}
+.deriv-panel .display-eq { text-align: center; margin: 0.6rem 0; }
+
+/* ── Summary table ── */
+table { width: 100%; border-collapse: collapse; font-size: 0.87rem; margin: 1.2rem 0 0.5rem; }
+thead th { background: var(--blue-mid); color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
+tbody tr:nth-child(even) { background: var(--blue-box); }
+tbody tr:nth-child(odd)  { background: var(--bg); }
+tbody td { padding: 7px 10px; border-bottom: 1px solid var(--gray-rule); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+.mono-cell { font-family: var(--mono); font-size: 0.82em; }
+.table-caption { font-size: 0.84rem; color: var(--gray-mid); margin-top: 0.5rem; line-height: 1.55; }
+
+@media (max-width: 600px) {
+  body { padding: 1.5rem 1rem 3rem; }
+  .title-block h1 { font-size: 1.3rem; }
+  table { font-size: 0.76rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="title-block">
+  <h1>Positional Accuracy of NV Centers:<br>From a Single Emitter to the General <em>M</em>-Emitter Problem</h1>
+  <div class="subtitle">A summary of &sigma; scaling and the role of superresolution &mdash; with derivations</div>
+</div>
+
+<!-- ================================================================ §1 -->
+<h2>The Single-Emitter Baseline</h2>
+
+<p>The simplest case is a single, isolated NV center imaged on a diffraction-limited confocal microscope. The PSF has a Gaussian profile of width $\spsf$ (approximately 125&nbsp;nm for NA&nbsp;=&nbsp;1.4 at 637&nbsp;nm). Collecting $N$ photons, the Cram&eacute;r&ndash;Rao bound gives the fundamental limit on positional accuracy:</p>
+
+<div class="key-result">
+  $$\sigma_x \;\geq\; \frac{\spsf}{\sqrt{N}} \tag{1}$$
+  <div class="eq-label">Thompson&ndash;Ober&ndash;Webb (2002)</div>
+</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Derive Eq.&nbsp;(1) from Fisher information</button>
+<div class="deriv-panel">
+  <p><strong>Goal:</strong> show that for $N$ photons drawn from a Gaussian PSF, the best possible position uncertainty is $\spsf/\sqrt{N}$.</p>
+
+  <div class="step">
+    <div class="step-label">Step 1 &mdash; probability of a single photon</div>
+    <p>Each photon lands at detector position $x$ drawn from the PSF centered at the true NV position $x_0$:</p>
+    <div class="display-eq">$$p(x \mid x_0) = \frac{1}{\sqrt{2\pi}\,\spsf}\exp\!\left(-\frac{(x-x_0)^2}{2\spsf^2}\right)$$</div>
+    <p>This is just the normalized Gaussian — the probability density of detecting a photon at position $x$.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-label">Step 2 &mdash; the score (derivative of log-likelihood)</div>
+    <p>Take the natural log:</p>
+    <div class="display-eq">$$\ln p = -\tfrac{1}{2}\ln(2\pi\spsf^2) - \frac{(x-x_0)^2}{2\spsf^2}$$</div>
+    <p>Differentiate with respect to $x_0$ (the parameter we want to estimate):</p>
+    <div class="display-eq">$$\frac{\partial \ln p}{\partial x_0} = \frac{x - x_0}{\spsf^2}$$</div>
+    <p>This is called the <em>score</em>. It measures how sensitively the log-likelihood responds to a shift in $x_0$ for a single observed photon landing at $x$.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-label">Step 3 &mdash; Fisher information for one photon</div>
+    <p>The Fisher information is the expected squared score:</p>
+    <div class="display-eq">$$I_1 = \E\!\left[\left(\frac{x-x_0}{\spsf^2}\right)^{\!2}\right] = \frac{1}{\spsf^4}\,\E\!\left[(x-x_0)^2\right]$$</div>
+    <p>Now $\E[(x-x_0)^2]$ is just the variance of the Gaussian distribution, which is exactly $\spsf^2$. Therefore:</p>
+    <div class="display-eq">$$I_1 = \frac{\spsf^2}{\spsf^4} = \frac{1}{\spsf^2}$$</div>
+    <p>Wider PSF $\Rightarrow$ smaller Fisher information per photon $\Rightarrow$ each photon tells you less about $x_0$. This makes intuitive sense.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-label">Step 4 &mdash; Fisher information for $N$ independent photons</div>
+    <p>The $N$ photons are detected independently, so the joint log-likelihood is a sum of individual log-likelihoods. Because the score of a sum is the sum of scores, and because independent zero-mean random variables have additive variances:</p>
+    <div class="display-eq">$$I_N = N \cdot I_1 = \frac{N}{\spsf^2}$$</div>
+    <p>Fisher information is additive over independent measurements. This is the key reason $N$ appears in the denominator.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-label">Step 5 &mdash; apply the Cram&eacute;r&ndash;Rao bound</div>
+    <p>The CRB states that for <em>any</em> unbiased estimator $\hat x_0$:</p>
+    <div class="display-eq">$$\Var(\hat x_0) \geq \frac{1}{I_N} = \frac{\spsf^2}{N}$$</div>
+    <p>Taking the square root gives Eq.&nbsp;(1). The bound is achieved exactly by the sample mean $\hat x_0 = \frac{1}{N}\sum_k x_k$, whose variance is $\spsf^2/N$ by direct calculation. So the CRB is tight here &mdash; the $1/\sqrt{N}$ scaling is not just a lower bound, it is the exact answer for the optimal estimator.</p>
+  </div>
+</div>
+
+<p><strong>Resolution and positional accuracy are distinct.</strong> $\spsf$ sets the <em>resolution</em> (minimum resolvable separation); $\sigma_x$ sets the <em>positional accuracy</em> (uncertainty on a single known emitter's location). The first is fixed by the optics; the second shrinks as $1/\sqrt{N}$.</p>
+
+<p><strong>No superresolution is needed for a single isolated emitter.</strong> A standard confocal ($\spsf = 250$&nbsp;nm) with $N = 10^6$ photons achieves $\sigma_x \approx 0.25$&nbsp;nm &mdash; far below the diffraction limit.</p>
+
+<hr>
+
+<!-- ================================================================ §2 -->
+<h2>Two NV Centers with Known Separation</h2>
+
+<p>Suppose two NV centers are separated by $d$, and $d$ is known precisely. We wish to recover $x_1$ and $x_2$.</p>
+
+<p>When $d \gg \spsf$ the PSFs barely overlap. Each emitter is effectively isolated and the single-emitter result applies to each with half the photon budget:</p>
+
+<div class="display-eq">$$\sigma_{x_1},\,\sigma_{x_2} \;\approx\; \frac{\spsf}{\sqrt{N/2}} \tag{2a}$$</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Why $\sqrt{N/2}$ and not $\sqrt{N}$?</button>
+<div class="deriv-panel">
+  <p>Each NV emits $N/2$ photons on average (assuming equal brightness). The Eq.&nbsp;(1) result applies to each independently with its own photon count. Plugging $N \to N/2$ gives $\spsf/\sqrt{N/2} = \spsf\sqrt{2}/\sqrt{N}$ — a $\sqrt{2}$ penalty relative to a single emitter using the full budget. This penalty vanishes if you can separate the two photon streams (e.g., by ODMR spin state), in which case each emitter effectively has its own independent camera.</p>
+</div>
+
+<p>When $d \ll \spsf$ the PSFs strongly overlap. Knowing $d$ still saves us via a parameter change. Write:</p>
+<div class="display-eq">$$x_1 = \bar x - \tfrac{d}{2}, \qquad x_2 = \bar x + \tfrac{d}{2}, \qquad \bar x = \tfrac{x_1+x_2}{2}$$</div>
+
+<p>The centroid $\bar x$ is always well-determined (it shifts the combined PSF). So the uncertainty in each individual position is:</p>
+
+<div class="key-result">
+  $$\sigma_{x_1}^2 \;=\; \sxbar^2 + \tfrac{1}{4}\sd^2 \tag{2b}$$
+</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Derive Eq.&nbsp;(2b): error propagation from $(\bar x, d)$ to $x_1$</button>
+<div class="deriv-panel">
+  <p>We have a deterministic relation $x_1 = \bar x - d/2$. Standard error propagation (the delta method) says: if $z = f(u, v)$, then $\sigma_z^2 = (\partial f/\partial u)^2 \sigma_u^2 + (\partial f/\partial v)^2 \sigma_v^2 + 2(\partial f/\partial u)(\partial f/\partial v)\,\mathrm{Cov}(u,v)$.</p>
+  <p>Here $f(\bar x, d) = \bar x - d/2$, so $\partial f/\partial \bar x = 1$ and $\partial f/\partial d = -1/2$. Assuming $\bar x$ and $d$ are estimated independently (their estimators are uncorrelated — this follows from the Fisher information matrix being block-diagonal between the symmetric and antisymmetric combinations for equal-brightness emitters):</p>
+  <div class="display-eq">$$\sigma_{x_1}^2 = 1^2 \cdot \sxbar^2 + \left(-\tfrac{1}{2}\right)^2 \sd^2 = \sxbar^2 + \tfrac{1}{4}\sd^2$$</div>
+  <p>If $d$ is known exactly then $\sd = 0$ and we get $\sigma_{x_1} = \sxbar \approx \spsf/\sqrt{N}$ &mdash; the single-emitter result is fully recovered. Known separation costs nothing.</p>
+</div>
+
+<hr>
+
+<!-- ================================================================ §3 -->
+<h2>Two NV Centers with Unknown Separation: the Rayleigh Curse</h2>
+
+<p>Now $d$ is unknown. We must estimate $(x_1, x_2)$ jointly from the image — equivalently, we estimate $(\bar x, d)$. The centroid remains easy, but $d$ becomes the bottleneck.</p>
+
+<h3>Fisher information for separation collapses near $d=0$</h3>
+
+<div class="key-result">
+  $$I(d) \;\propto\; \left(\frac{d}{\spsf}\right)^{\!2} \quad \text{as } d\to 0 \tag{3a}$$
+</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Derive Eq.&nbsp;(3a): why $I(d) \propto d^2$</button>
+<div class="deriv-panel">
+  <p>The combined intensity profile for two equal emitters at $\pm d/2$ is:</p>
+  <div class="display-eq">$$p(x \mid d) = \frac{1}{2}\,G(x+d/2) + \frac{1}{2}\,G(x-d/2)$$</div>
+  <p>where $G(u) = \frac{1}{\sqrt{2\pi}\spsf}e^{-u^2/2\spsf^2}$. The Fisher information for $d$ is:</p>
+  <div class="display-eq">$$I(d) = \int_{-\infty}^{\infty} \frac{\left[\partial p/\partial d\right]^2}{p(x\mid d)}\,dx$$</div>
+
+  <div class="step">
+    <div class="step-label">Compute $\partial p / \partial d$</div>
+    <div class="display-eq">$$\frac{\partial p}{\partial d} = \frac{1}{2}\left[-\frac{1}{2}G'(x+d/2) + \frac{1}{2}G'(x-d/2)\right]$$</div>
+    <p>where $G'(u) = -\frac{u}{\spsf^2}G(u)$. At $d = 0$ both terms are $G'(x)$ with opposite signs, so:</p>
+    <div class="display-eq">$$\left.\frac{\partial p}{\partial d}\right|_{d=0} = \frac{1}{2}\left[-\frac{1}{2}G'(x) + \frac{1}{2}G'(x)\right] = 0$$</div>
+    <p>The derivative vanishes identically at $d=0$ — this is the symmetry argument. At $d=0$ the two emitters are indistinguishable; pulling them apart to first order produces no change in the image.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-label">Taylor expand for small $d$</div>
+    <p>Since the first-order term is zero, expand to second order in $d$:</p>
+    <div class="display-eq">$$\frac{\partial p}{\partial d} \approx \frac{d}{4}\left[G''(x-d/2) + G''(x+d/2)\right]\Big|_{d\to 0} \propto d \cdot G''(x)$$</div>
+    <p>So $\partial p/\partial d \propto d$ for small $d$. Squaring and integrating:</p>
+    <div class="display-eq">$$I(d) \propto d^2 \int \frac{[G''(x)]^2}{G(x)}\,dx \propto \frac{d^2}{\spsf^2}$$</div>
+    <p>The integral $\int [G''(x)]^2/G(x)\,dx$ is finite and evaluates to $3/(2\spsf^4)$ for a Gaussian (it is the Fisher information for the width parameter). The key result is that $I(d) \propto d^2/\spsf^2$, going to zero quadratically as $d\to 0$.</p>
+  </div>
+</div>
+
+<p>Because $I(d) \propto d^2$, the Cram&eacute;r&ndash;Rao bound on $d$ diverges as $d \to 0$:</p>
+
+<div class="key-result">
+  $$\sd \;\geq\; \frac{\spsf^2}{d\,\sqrt{N}} \tag{3b}$$
+</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Derive Eq.&nbsp;(3b) from $I(d) \propto d^2/\spsf^2$</button>
+<div class="deriv-panel">
+  <p>Write $I_1(d) = c\,d^2/\spsf^2$ for some numerical constant $c$ of order 1. For $N$ photons, total Fisher information is $I_N(d) = N \cdot c\, d^2/\spsf^2$. The CRB gives:</p>
+  <div class="display-eq">$$\sd^2 \geq \frac{1}{I_N(d)} = \frac{\spsf^2}{N c d^2}$$</div>
+  <p>Taking the square root and absorbing $c$ into the proportionality:</p>
+  <div class="display-eq">$$\sd \gtrsim \frac{\spsf^2}{d\sqrt{N}}$$</div>
+  <p>Note the structure: the $1/\sqrt{N}$ from the CRB is now multiplied by $\spsf^2/d$, which grows without bound as $d\to 0$. More photons still help (they enter as $1/\sqrt{N}$) but you are fighting an increasingly bad geometric prefactor.</p>
+</div>
+
+<h3>Individual positions inherit the curse</h3>
+
+<p>Substituting $\sxbar \approx \spsf/\sqrt{N}$ and $\sd \approx \spsf^2/(d\sqrt{N})$ into Eq.&nbsp;(2b):</p>
+
+<div class="display-eq">$$\sigma_{x_1}^2 \approx \frac{\spsf^2}{N} + \frac{1}{4}\cdot\frac{\spsf^4}{d^2 N} = \frac{\spsf^2}{N}\left(1 + \frac{\spsf^2}{4d^2}\right)$$</div>
+
+<p>When $d \ll \spsf$ the second term dominates:</p>
+
+<div class="key-result">
+  $$\sigma_{x_1} \;\approx\; \frac{\spsf^2}{2d\,\sqrt{N}} \tag{3c}$$
+</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> How does this simplify from Eq.&nbsp;(2b)?</button>
+<div class="deriv-panel">
+  <p>Start from Eq.&nbsp;(2b): $\sigma_{x_1}^2 = \sxbar^2 + \frac{1}{4}\sd^2$.</p>
+  <p>We know $\sxbar \approx \spsf/\sqrt{N}$ (centroid of the combined PSF, same as single emitter). And from Eq.&nbsp;(3b), $\sd \approx \spsf^2/(d\sqrt{N})$. Substituting:</p>
+  <div class="display-eq">$$\sigma_{x_1}^2 \approx \frac{\spsf^2}{N} + \frac{1}{4}\cdot\frac{\spsf^4}{d^2 N}$$</div>
+  <p>Factor out $\spsf^2/N$:</p>
+  <div class="display-eq">$$\sigma_{x_1}^2 \approx \frac{\spsf^2}{N}\left[1 + \frac{\spsf^2}{4d^2}\right]$$</div>
+  <p>When $d \ll \spsf$ (specifically $d \ll \spsf/2$), the second term $\spsf^2/(4d^2) \gg 1$ dominates, so we drop the first term:</p>
+  <div class="display-eq">$$\sigma_{x_1}^2 \approx \frac{\spsf^4}{4d^2 N}$$</div>
+  <p>Taking the square root gives Eq.&nbsp;(3c). The factor of $\spsf/(2d)$ is how much worse you are compared to a single isolated emitter — for $d = 10$&nbsp;nm and $\spsf = 125$&nbsp;nm this factor is about 6, meaning you need $6^2 = 36\times$ more photons just to match the isolated-emitter performance.</p>
+</div>
+
+<hr>
+
+<!-- ================================================================ §4 -->
+<h2>$M$ NV Centers with Known $M$: the Combinatorial Catastrophe</h2>
+
+<h3>Density penalty</h3>
+
+<p>For $M$ emitters uniformly distributed in a disk of radius $\spsf$, the mean nearest-neighbor separation is:</p>
+
+<div class="display-eq">$$\bar d \;\sim\; \frac{\spsf}{\sqrt{M}} \tag{4a}$$</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Derive Eq.&nbsp;(4a): nearest-neighbor distance for uniform 2D density</button>
+<div class="deriv-panel">
+  <p>We have $M$ points distributed uniformly in a disk of area $A = \pi\spsf^2$, giving number density $\rho = M/A = M/(\pi\spsf^2)$.</p>
+  <p>For a uniform 2D Poisson point process with density $\rho$, the probability that the nearest neighbor is further than distance $r$ is the probability of finding zero other points within a disk of radius $r$:</p>
+  <div class="display-eq">$$P(\text{nearest neighbor} > r) = e^{-\rho \pi r^2}$$</div>
+  <p>This is just the Poisson zero-count probability. The mean nearest-neighbor distance is:</p>
+  <div class="display-eq">$$\E[r_{\min}] = \int_0^\infty P(r_{\min} > r)\,dr = \int_0^\infty e^{-\rho\pi r^2}\,dr = \frac{1}{2\sqrt{\rho}}$$</div>
+  <p>The integral is a Gaussian: $\int_0^\infty e^{-\alpha r^2}dr = \frac{1}{2}\sqrt{\pi/\alpha}$, so with $\alpha = \rho\pi$ we get $\frac{1}{2}\sqrt{1/\rho}$.</p>
+  <p>Substituting $\rho = M/(\pi\spsf^2)$:</p>
+  <div class="display-eq">$$\bar d = \frac{1}{2\sqrt{M/(\pi\spsf^2)}} = \frac{\spsf}{2}\sqrt{\frac{\pi}{M}} \sim \frac{\spsf}{\sqrt{M}}$$</div>
+  <p>absorbing the numerical prefactor $\sqrt{\pi}/2 \approx 0.89$ into the $\sim$ sign, since we only care about the scaling.</p>
+</div>
+
+<p>Substituting $\bar d \sim \spsf/\sqrt{M}$ into Eq.&nbsp;(3c):</p>
+
+<div class="key-result">
+  $$\sx \;\sim\; \frac{\spsf\,\sqrt{M}}{\sqrt{N}} \tag{4b}$$
+</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Show the substitution explicitly</button>
+<div class="deriv-panel">
+  <p>From Eq.&nbsp;(3c), the individual position uncertainty for two nearby emitters separated by $d$ is $\sigma \approx \spsf^2/(2d\sqrt{N})$. Replace $d$ with the typical nearest-neighbor separation $\bar d \sim \spsf/\sqrt{M}$:</p>
+  <div class="display-eq">$$\sx \sim \frac{\spsf^2}{2\,(\spsf/\sqrt{M})\,\sqrt{N}} = \frac{\spsf^2 \sqrt{M}}{2\,\spsf\,\sqrt{N}} = \frac{\spsf\sqrt{M}}{2\sqrt{N}}$$</div>
+  <p>Dropping the factor of 2 (order-of-magnitude scaling):</p>
+  <div class="display-eq">$$\sx \sim \frac{\spsf\sqrt{M}}{\sqrt{N}}$$</div>
+  <p>The $\sqrt{M}$ growth makes sense: more emitters $\Rightarrow$ smaller $\bar d$ $\Rightarrow$ stronger Rayleigh curse on each pair $\Rightarrow$ each emitter is harder to localize. Note that the $\sqrt{M}$ factor means you need $M$ times more photons to maintain the same $\sigma_x$ as $M$ grows — but since the total photon budget is also shared over $M$ emitters, this is a genuinely bad situation.</p>
+</div>
+
+<h3>Permutation explosion and Fisher matrix ill-conditioning</h3>
+
+<p>With $M$ emitters the likelihood surface has $M!$ peaks. The Fisher information matrix becomes ill-conditioned; its smallest eigenvalue scales as:</p>
+
+<div class="display-eq">$$\lambda_{\min} \;\propto\; \left(\frac{\bar d}{\spsf}\right)^{2(M-1)} N \tag{4c}$$</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Why does $\lambda_\mathrm{min}$ scale as $(\bar d/\spsf)^{2(M-1)}$?</button>
+<div class="deriv-panel">
+  <p>The Fisher information matrix $\mathbf{F}$ for the $2M$ position parameters has entries:</p>
+  <div class="display-eq">$$F_{ij} = N\int \frac{(\partial p/\partial\theta_i)(\partial p/\partial\theta_j)}{p}\,dx$$</div>
+  <p>where $\theta_i$ are the $2M$ position coordinates. Consider the eigenvector corresponding to the smallest eigenvalue: it is the mode of parameter variation to which the image is <em>least</em> sensitive. For $M$ emitters this is a collective rearrangement that moves all emitters while barely changing the total intensity profile.</p>
+  <p>Physically, the worst case is the "accordion mode" where emitters move simultaneously in a pattern that is nearly invisible at the detector. Each pairwise Rayleigh curse contributes a factor of $(d/\spsf)^2$ to the determinant of the Fisher matrix. With $M-1$ independent separations (one centroid + $M-1$ relative positions), the determinant scales as:</p>
+  <div class="display-eq">$$\det(\mathbf{F}) \propto N^{2M} \left(\frac{\bar d}{\spsf}\right)^{2(M-1)}$$</div>
+  <p>The smallest eigenvalue is roughly the determinant divided by the product of all other eigenvalues. The centroid eigenvalue stays $\sim N/\spsf^2$ regardless of $d$. After dividing out the $M-1$ "easy" eigenvalues (which also scale as $N/\spsf^2$), the remaining smallest one scales as:</p>
+  <div class="display-eq">$$\lambda_{\min} \propto N\left(\frac{\bar d}{\spsf}\right)^{2(M-1)}$$</div>
+  <p>This goes to zero exponentially fast in $M$ (since $\bar d/\spsf = 1/\sqrt{M} &lt; 1$), explaining why the problem becomes rapidly intractable as $M$ grows.</p>
+</div>
+
+<p>The corresponding worst-case position uncertainty is:</p>
+
+<div class="key-result">
+  $$\sigma_{\max} \;\sim\; \frac{\spsf^M}{\bar d^{\,M-1}\,\sqrt{N}} \tag{4d}$$
+</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Derive Eq.&nbsp;(4d) from $\lambda_\mathrm{min}$</button>
+<div class="deriv-panel">
+  <p>The CRB for the worst-case direction in parameter space is $\sigma_{\max}^2 \geq 1/\lambda_{\min}$. Using Eq.&nbsp;(4c) with $\bar d = \spsf/\sqrt{M}$:</p>
+  <div class="display-eq">$$\sigma_{\max}^2 \sim \frac{1}{N} \cdot \left(\frac{\spsf}{\bar d}\right)^{2(M-1)} = \frac{\spsf^{2(M-1)}}{\bar d^{\,2(M-1)}\,N}$$</div>
+  <p>Taking the square root:</p>
+  <div class="display-eq">$$\sigma_{\max} \sim \frac{\spsf^{M-1}}{\bar d^{\,M-1}\,\sqrt{N}} = \frac{\spsf^{M-1}\,\spsf}{\bar d^{\,M-1}\,\sqrt{N}} = \frac{\spsf^{M}}{\bar d^{\,M-1}\,\sqrt{N}}$$</div>
+  <p>This is exponential in $M$: substituting $\bar d = \spsf/\sqrt{M}$ gives $\sigma_{\max} \sim \spsf\,M^{(M-1)/2}/\sqrt{N}$, which grows faster than any polynomial in $M$.</p>
+</div>
+
+<hr>
+
+<!-- ================================================================ §5 -->
+<h2>The General Case: $M$ Unknown</h2>
+
+<p>The most honest version of the problem: $M$ is unknown. We must simultaneously select the model (how many emitters?) and estimate parameters.</p>
+
+<h3>Three regimes of $N$</h3>
+
+<p><strong>Low-$N$ regime.</strong> Model selection error dominates — wrongly identifying $M$ introduces a bias that does not shrink as $1/\sqrt{N}$.</p>
+
+<p><strong>Intermediate regime.</strong> The correct $M^*$ is identified with high probability above a threshold:</p>
+
+<div class="key-result">
+  $$N_{\mathrm{threshold}} \;\sim\; \left(\frac{\spsf}{d_{\min}}\right)^{2M^*} \tag{5a}$$
+</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Why is $N_\mathrm{threshold}$ exponential in $M^*$?</button>
+<div class="deriv-panel">
+  <p>To correctly identify $M^*$ vs $M^*-1$ emitters, the likelihood ratio between the two models must be statistically distinguishable from noise. The log-likelihood difference between the true model ($M^*$ emitters) and the simpler model ($M^*-1$ emitters) grows as the Fisher information for the "extra" separation that the simpler model misses.</p>
+  <p>From Eq.&nbsp;(3a), the Fisher information for one separation at distance $d$ is $\propto d^2/\spsf^2$. The likelihood ratio test statistic for detecting one extra emitter at separation $d$ from the existing cluster scales as $N \cdot (d/\spsf)^2$. We can correctly detect the extra emitter when this exceeds a threshold of order 1:</p>
+  <div class="display-eq">$$N \cdot \frac{d_{\min}^2}{\spsf^2} \gtrsim 1 \quad\Rightarrow\quad N \gtrsim \frac{\spsf^2}{d_{\min}^2}$$</div>
+  <p>But this argument must be applied $M^*-1$ times — once for each successive emitter being added to the model. Each additional emitter contributes another factor of $(\spsf/d_{\min})^2$ to the threshold (because each new separation has its own Rayleigh curse). Multiplying $M^*-1$ factors together:</p>
+  <div class="display-eq">$$N_{\mathrm{threshold}} \sim \left(\frac{\spsf}{d_{\min}}\right)^{2(M^*-1)} \sim \left(\frac{\spsf}{d_{\min}}\right)^{2M^*}$$</div>
+  <p>absorbing the $-1$ in the exponent into the $\sim$. This exponential growth in $M^*$ is why model selection becomes astronomically hard for densely packed emitters: for $d_{\min} = \spsf/10$ and $M^* = 5$ you need $10^{10}$ photons just to correctly count the emitters, before you even start localizing them.</p>
+</div>
+
+<h3>Combined scaling</h3>
+
+<div class="key-result">
+  $$\sx \;\sim\;
+    \underbrace{\frac{\spsf}{\sqrt{N}}}_{\displaystyle\text{single-emitter}}
+    \times
+    \underbrace{\sqrt{M^*}}_{\displaystyle\text{density}}
+    \times
+    \underbrace{\!\left(\frac{\spsf}{d_{\min}}\right)^{\!M^*-1}}_{\displaystyle\text{Rayleigh (compounded)}}
+    \times
+    \underbrace{g(N,M^*,d_{\min})}_{\displaystyle\text{model selection}} \tag{5b}$$
+</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> How does each factor arise?</button>
+<div class="deriv-panel">
+  <p>The four factors each come from a different layer of the problem:</p>
+  <div class="step">
+    <div class="step-label">Factor 1: $\spsf/\sqrt{N}$</div>
+    <p>This is the single-emitter CRB from Eq.&nbsp;(1). It is always present as a floor — you cannot do better than this even in ideal conditions.</p>
+  </div>
+  <div class="step">
+    <div class="step-label">Factor 2: $\sqrt{M^*}$</div>
+    <p>From Eq.&nbsp;(4b). Packing $M^*$ emitters into a diffraction volume reduces the typical nearest-neighbor separation to $\bar d \sim \spsf/\sqrt{M^*}$, which degrades each emitter's localization by $\sqrt{M^*}$ via the Rayleigh curse.</p>
+  </div>
+  <div class="step">
+    <div class="step-label">Factor 3: $(\spsf/d_{\min})^{M^*-1}$</div>
+    <p>From Eq.&nbsp;(4c)–(4d). The Fisher matrix ill-conditioning compounds over all $M^*-1$ independent separations, each contributing a factor of $\spsf/d_{\min}$. This is the dominant term when $M^*$ is large and $d_{\min} \ll \spsf$.</p>
+  </div>
+  <div class="step">
+    <div class="step-label">Factor 4: $g(N, M^*, d_{\min})$</div>
+    <p>The model-selection penalty. When $N &lt; N_{\mathrm{threshold}}$ from Eq.&nbsp;(5a), $g \gg 1$ because you are likely fitting the wrong $M$ and the positional errors have a large systematic component. Once $N \gg N_{\mathrm{threshold}}$, $g \to 1$ and only the first three factors matter. In practice for $M^* \geq 4$ at sub-diffraction densities, $g$ never reaches 1 with realistic photon budgets.</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- ================================================================ §6 -->
+<h2>How Superresolution Rescues the Problem</h2>
+
+<p>All pathologies are controlled by one quantity: the number of emitters per resolution element,</p>
+
+<div class="key-result">
+  $$M_{\mathrm{eff}} \;=\; \rho\,\bigl(\seff\bigr)^2 \tag{6a}$$
+</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> What does this formula mean and where does it come from?</button>
+<div class="deriv-panel">
+  <p>$\rho$ is the 2D number density of NV centers (emitters per nm²), fixed by sample preparation. $\seff$ is the effective PSF radius of the imaging system, which superresolution can shrink below the diffraction limit. The product $\rho \cdot (\seff)^2$ is a dimensionless number: it counts how many emitters fall within an area of $\seff^2$ — i.e., within one resolution element.</p>
+  <p>More precisely: the area of a disk of radius $\seff$ is $\pi(\seff)^2$; the expected number of emitters within it is $\rho\pi(\seff)^2$. The formula absorbs the $\pi$ into the $\sim$ notation, since we only care about the scaling.</p>
+  <p>Why does this control everything? Look back at the scaling results:</p>
+  <ul style="padding-left:1.2em;margin:0.5rem 0">
+    <li style="margin-bottom:0.4rem">Eq.&nbsp;(4b): $\sx \sim \spsf\sqrt{M}/\sqrt{N}$ — depends on $M$ within the PSF area, i.e. $M_\mathrm{eff}$.</li>
+    <li style="margin-bottom:0.4rem">Eq.&nbsp;(4d): $\sigma_\mathrm{max} \sim \spsf^M/(\bar d^{M-1}\sqrt{N})$ — depends on $M_\mathrm{eff}$ through $M$ and $\bar d \sim \spsf/\sqrt{M_\mathrm{eff}}$.</li>
+    <li>Eq.&nbsp;(5a): $N_\mathrm{threshold} \sim (\spsf/d_\mathrm{min})^{2M^*}$ — depends on how many emitters are packed within $\spsf$.</li>
+  </ul>
+  <p>When $M_\mathrm{eff} \leq 1$: $M=1$ within the resolution element, all multi-emitter pathologies vanish ($1! = 1$, Fisher matrix is $1\times 1$ and trivially well-conditioned), and we recover $\sx = \seff/\sqrt{N}$.</p>
+</div>
+
+<p><strong>Deterministic PSF narrowing (STED, GSD, spin-RESOLFT).</strong> Shrink $\seff$ by factor $f$: this reduces $M_\mathrm{eff}$ by $f^2$. The cost is scan time $\propto f^2$ (more pixels for the same field of view).</p>
+
+<div class="display-eq">$$\seff \to \frac{\seff}{f} \;\Rightarrow\; M_\mathrm{eff} \to \frac{M_\mathrm{eff}}{f^2} \tag{6b}$$</div>
+
+<button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Why does $M_\mathrm{eff}$ scale as $f^2$?</button>
+<div class="deriv-panel">
+  <p>From Eq.&nbsp;(6a): $M_\mathrm{eff} = \rho\,(\seff)^2$. If we reduce $\seff$ by a factor $f$ (i.e. $\seff \to \seff/f$), then:</p>
+  <div class="display-eq">$$M_\mathrm{eff}^{\mathrm{new}} = \rho\,\left(\frac{\seff}{f}\right)^2 = \frac{\rho\,\seff^2}{f^2} = \frac{M_\mathrm{eff}}{f^2}$$</div>
+  <p>The quadratic dependence on PSF width is because the resolution element is 2D — its area shrinks as the square of the linear dimension. This is why a factor of 10 improvement in resolution (say STED achieving 25&nbsp;nm instead of 250&nbsp;nm) gives a factor of 100 reduction in $M_\mathrm{eff}$, which can easily take a sample from $M_\mathrm{eff} \gg 1$ (intractable) to $M_\mathrm{eff} \ll 1$ (trivially solvable).</p>
+</div>
+
+<p><strong>Stochastic emitter thinning (STORM, single-spin STORM).</strong> Keep $\seff \approx 250$&nbsp;nm but reduce $\rho_\mathrm{eff}$ per frame by switching most emitters off. Each frame has $M_\mathrm{eff} \ll 1$; the full image is reconstructed over many frames at a time cost of $1/(\text{active fraction})$.</p>
+
+<p>In both cases superresolution does not improve the $1/\sqrt{N}$ scaling — it <em>rescues the prefactor</em> by enforcing $M_\mathrm{eff} \leq 1$.</p>
+
+<hr>
+
+<!-- ================================================================ §7 -->
+<h2>Summary</h2>
+
+<table>
+<thead>
+<tr>
+  <th>Scenario</th>
+  <th>What is known</th>
+  <th>$\sigma$ scaling</th>
+  <th>Limiting factor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>1 NV, isolated</td>
+  <td>$M=1$, isolated</td>
+  <td class="mono-cell">$\spsf/\sqrt{N}$</td>
+  <td>Shot noise only</td>
+</tr>
+<tr>
+  <td>2 NV, $d \gg \spsf$</td>
+  <td>$M=2$, $d$ known</td>
+  <td class="mono-cell">$\spsf/\sqrt{N}$</td>
+  <td>Shot noise only</td>
+</tr>
+<tr>
+  <td>2 NV, $d \ll \spsf$</td>
+  <td>$M=2$, $d$ unknown</td>
+  <td class="mono-cell">$\spsf^2/(2d\sqrt{N})$</td>
+  <td>Rayleigh curse on $d$</td>
+</tr>
+<tr>
+  <td>$M$ NV, uniform density</td>
+  <td>$M$ known</td>
+  <td class="mono-cell">$\spsf\sqrt{M}/\sqrt{N}$</td>
+  <td>Density + $M!$ permutations</td>
+</tr>
+<tr>
+  <td>$M$ NV, $M$ unknown</td>
+  <td>Nothing</td>
+  <td class="mono-cell">$\spsf^M/(d_{\min}^{M-1}\sqrt{N})$</td>
+  <td>Model selection + Rayleigh</td>
+</tr>
+<tr>
+  <td>Any density, superres.</td>
+  <td>$M_\mathrm{eff}\leq 1$ enforced</td>
+  <td class="mono-cell">$\seff/\sqrt{N}$</td>
+  <td>Shot noise (rescued)</td>
+</tr>
+</tbody>
+</table>
+
+<p class="table-caption"><strong>Table 1.</strong> $\sigma$ scaling across all regimes. $\spsf$ is the PSF standard deviation (FWHM/2.35), $N$ is the total detected photon count, $d_{\min}$ is the smallest pairwise NV separation, and $M^*$ is the true number of emitters. The superresolution row assumes $M_\mathrm{eff} \leq 1$ has been enforced by either PSF narrowing or stochastic thinning. Click any <span style="color:var(--blue-derborder);font-weight:600">&#9658; Derive</span> button above to expand the full step-by-step derivation.</p>
+
+<script>
+function toggle(btn) {
+  btn.classList.toggle('open');
+  const panel = btn.nextElementSibling;
+  panel.classList.toggle('open');
+  // Re-run MathJax on newly revealed content
+  if (panel.classList.contains('open') && window.MathJax) {
+    MathJax.typesetPromise([panel]).catch(console.error);
+  }
+}
+</script>
+</body>
+</html>
