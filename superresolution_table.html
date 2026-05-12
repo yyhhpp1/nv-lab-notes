@@ -250,10 +250,10 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val">≥2<div class="note">dense bulk</div></td>
   <td class="val"><strong>~6 nm</strong><div class="note">confirmed from paper</div></td>
   <td class="est">~2 nm est.<div class="note">N not reported</div></td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—<div class="note">scan params not reported</div></td>
-  <td class="na">—</td>
+  <td class="est">~10²–10³ est.<div class="note">~1 ms dwell; STED depletes off-peak signal</div></td>
+  <td class="est">~1 ms est.<div class="note">point-scan dwell; not reported</div></td>
+  <td class="est">~100–200 nm FOV,<br>~3–5 nm steps est.<div class="note">Nyquist-sampled 6 nm PSF; not reported</div></td>
+  <td class="est">~seconds to ~1 min est.<div class="note">small FOV; total not reported</div></td>
 </tr>
 
 <tr data-tech="sted">
@@ -261,11 +261,11 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val">STED 3D CW</td>
   <td class="val">≥2<div class="note">high density</div></td>
   <td class="est">~40–50 nm est.<div class="note">CW, lower saturation</div></td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
+  <td class="na">—<div class="note">localization precision not reported</div></td>
+  <td class="est">~10²–10³ est.<div class="note">CW STED; ~1–2 ms dwell</div></td>
+  <td class="est">~1–2 ms est.<div class="note">point-scan; not reported</div></td>
+  <td class="est">~hundreds nm FOV,<br>~20–50 nm steps est.<div class="note">lower res. than pulsed STED; not reported</div></td>
+  <td class="est">~minutes est.<div class="note">3D point-scan; not reported</div></td>
 </tr>
 
 <tr data-tech="sted">
@@ -273,11 +273,11 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val">STED + ODMR</td>
   <td class="val">2<div class="note">subdiff. pair</div></td>
   <td class="est">~8 nm est.<div class="note">consistent w/ pulsed STED</div></td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—<div class="note">+ ODMR sweep overhead</div></td>
-  <td class="na">—</td>
+  <td class="na">—<div class="note">precision not reported</div></td>
+  <td class="est">~10²–10³ est.<div class="note">optical readout ~1 ms; ODMR adds many freq. pts</div></td>
+  <td class="est">~seconds/pixel est.<div class="note">ODMR sweep dominates optical dwell; not reported</div></td>
+  <td class="est">~100–300 nm FOV,<br>~5–10 nm steps est.<div class="note">+ ODMR freq. sweep per pixel; not reported</div></td>
+  <td class="est">~hours est.<div class="note">ODMR overhead per pixel; not reported</div></td>
 </tr>
 
 <tr data-tech="sted">
@@ -285,11 +285,11 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val">STED (ND)</td>
   <td class="val">2<div class="note">within 40–250 nm ND</div></td>
   <td class="val"><strong>~10 nm</strong><div class="note">confirmed; ~15 nm sep. resolved</div></td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
+  <td class="na">—<div class="note">localization precision not reported</div></td>
+  <td class="est">~10²–10³ est.<div class="note">~1 ms dwell; nanocrystal sample</div></td>
+  <td class="est">~1 ms est.<div class="note">not reported</div></td>
+  <td class="est">~100–400 nm FOV,<br>~5–10 nm steps est.<div class="note">ND size 40–250 nm; not reported</div></td>
+  <td class="est">~seconds to ~1 min est.<div class="note">small FOV (ND-constrained); not reported</div></td>
 </tr>
 
 <!-- ── GSD ── -->
@@ -300,11 +300,11 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val">GSD</td>
   <td class="val">≥2<div class="note">dense bulk</div></td>
   <td class="val"><strong>~8 nm</strong><div class="note">confirmed from paper</div></td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—<div class="note">scan params not reported</div></td>
-  <td class="na">—</td>
+  <td class="na">—<div class="note">N not reported</div></td>
+  <td class="est">~10²–10³ est.<div class="note">~1–5 ms dwell; GSD dark-state depletion</div></td>
+  <td class="est">~1–5 ms est.<div class="note">GSD depletion step; not reported</div></td>
+  <td class="est">~100–200 nm FOV,<br>~4–8 nm steps est.<div class="note">Nyquist on 8 nm PSF; not reported</div></td>
+  <td class="est">~seconds to ~1 min est.<div class="note">not reported</div></td>
 </tr>
 
 <tr data-tech="gsd">
@@ -313,10 +313,10 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val">2<div class="note">bulk, coupled pair</div></td>
   <td class="val"><strong>16.9 ± 0.8 nm</strong><div class="note">confirmed; 589 nm, NA=1.3</div></td>
   <td class="est">~4 nm est.<div class="note">N not reported</div></td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="val"><strong>±500 nm FOV</strong><div class="note">τ=10 ms depletion; step size not stated</div></td>
-  <td class="na">—<div class="note">total time not reported</div></td>
+  <td class="est">~10²–10³ est.<div class="note">spin-state readout; τ=10 ms integration</div></td>
+  <td class="est">~10–50 ms est.<div class="note">τ=10 ms depletion + readout; not stated</div></td>
+  <td class="val"><strong>±500 nm FOV</strong><div class="note">τ=10 ms depletion; ~17 nm steps est. (Nyquist)</div></td>
+  <td class="est">~1–5 min est.<div class="note">±500 nm / ~17 nm steps → ~60² px × ~50 ms; not reported</div></td>
 </tr>
 
 <!-- ── CSD ── -->
@@ -327,11 +327,11 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val">CSD</td>
   <td class="val">1–2<div class="note">bulk</div></td>
   <td class="val"><strong>~40 nm</strong><div class="note">confirmed from paper</div></td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
+  <td class="na">—<div class="note">localization precision not reported</div></td>
+  <td class="est">~10²–10³ est.<div class="note">~1 ms dwell; CSD similar to STED/GSD</div></td>
+  <td class="est">~1–5 ms est.<div class="note">not reported</div></td>
+  <td class="est">~hundreds nm FOV,<br>~20 nm steps est.<div class="note">Nyquist on 40 nm PSF; not reported</div></td>
+  <td class="est">~minutes est.<div class="note">not reported</div></td>
 </tr>
 
 <!-- ── SMLM ── -->
@@ -346,7 +346,7 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="est">~10³–10⁴ est.<div class="note">per blinking event</div></td>
   <td class="val">wide-field<div class="note">frame-based</div></td>
   <td class="na">—<div class="note">frame count not reported</div></td>
-  <td class="na">—<div class="note">total time not reported; many frames</div></td>
+  <td class="est">~hours est.<div class="note">wide-field STORM: many frames; not reported</div></td>
 </tr>
 
 <tr data-tech="smlm">
@@ -355,10 +355,10 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val">2<div class="note">within ND</div></td>
   <td class="val"><strong>~250 nm</strong></td>
   <td class="val"><strong>&lt;20 nm</strong><div class="note">confirmed</div></td>
-  <td class="na">—</td>
+  <td class="est">~10³–10⁴ est.<div class="note">per blinking event; not reported</div></td>
   <td class="val">wide-field</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
+  <td class="na">—<div class="note">N/A; frame-based</div></td>
+  <td class="est">~10–60 min est.<div class="note">many frames; not reported</div></td>
 </tr>
 
 <tr data-tech="smlm">
@@ -367,10 +367,10 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val">2<div class="note">within ND</div></td>
   <td class="val"><strong>~250 nm</strong></td>
   <td class="val"><strong>~23 nm</strong><div class="note">confirmed; two NV at 23 nm resolved</div></td>
-  <td class="na">—</td>
+  <td class="est">~10³–10⁴ est.<div class="note">per localization event; not reported</div></td>
   <td class="val">wide-field + MW</td>
-  <td class="na">—</td>
-  <td class="na">—</td>
+  <td class="na">—<div class="note">N/A; frame-based</div></td>
+  <td class="est">~hours est.<div class="note">many MW + optical cycles; not reported</div></td>
 </tr>
 
 <!-- ── Spin-RESOLFT ── -->
@@ -381,8 +381,8 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val">Spin-RESOLFT</td>
   <td class="val">2<div class="note">bulk, &lt;150 nm apart</div></td>
   <td class="est">~50–75 nm est.<div class="note">~10× over confocal reported</div></td>
-  <td class="na">—</td>
-  <td class="na">—</td>
+  <td class="na">—<div class="note">localization precision not reported</div></td>
+  <td class="est">~10⁴–10⁵ est.<div class="note">many spin-readout reps × 7.2 s/pixel; not reported</div></td>
   <td class="val"><strong>7.2 s/pixel</strong><div class="note">confirmed</div></td>
   <td class="val"><strong>50 × 50 pixels</strong><div class="note">confirmed from paper</div></td>
   <td class="val"><strong>~5 hours</strong><div class="note">7.2 s × 2500 px confirmed-derivable</div></td>
@@ -410,9 +410,9 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <td class="val"><strong>~250 nm</strong><div class="note">confocal PSF; superres. from spin</div></td>
   <td class="val"><strong>&lt;1.4 nm</strong><div class="note">confirmed; 0.15 nm theoretical</div></td>
   <td class="est">~10⁵–10⁶ est.<div class="note">needed to reach sub-nm $\sigma$</div></td>
-  <td class="na">—</td>
+  <td class="est">~seconds/point est.<div class="note">many T₂-limited Ramsey reps; not reported</div></td>
   <td class="na">—<div class="note">1D scan only; params not reported</div></td>
-  <td class="na">—</td>
+  <td class="na">—<div class="note">1D scan, few points; total not reported</div></td>
 </tr>
 
 </tbody>
@@ -423,7 +423,7 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
   <p><span class="conf">Bold values</span> are confirmed directly from the cited paper. <span class="est-t">Italic values</span> are estimated from context or derived from other reported quantities.</p>
   <p><strong>PSF FWHM</strong> is the width of the effective point spread function — the resolution of the imaging system. For SMLM rows the PSF is intentionally diffraction-limited (~250 nm) and superresolution arises entirely from the localization precision column.</p>
   <p><strong>Localization precision $\sigma$</strong> is the statistical position uncertainty, scaling approximately as FWHM/$\sqrt{N_\mathrm{ph}}$ for an isolated emitter. See the <a href="NV_sigma_scaling_v2.html">σ scaling write-up</a> for the full derivation.</p>
-  <p><strong>Total scan time notes.</strong> Maurer 2010: 7.2 s/pixel × 50×50 = 5.0 h (confirmed-derivable). Jaskula 2017: 9 s/pixel × ~6400 px est. ≈ 160 h; in practice only small 2D subregions were imaged. STED/GSD scan times go unreported in the primary papers; point-scanning at ms dwell times over a few hundred nm FOV would give minutes to tens of minutes.</p>
+  <p><strong>Total scan time notes.</strong> Maurer 2010: 7.2 s/pixel × 50×50 = 5.0 h (confirmed-derivable). Jaskula 2017: 9 s/pixel × ~6400 px est. ≈ 160 h; in practice only small 2D subregions were imaged. STED/GSD/CSD scan times are unreported in the primary papers; estimated values assume ~1–5 ms dwell, a few hundred nm FOV, and Nyquist-sampled steps (2× PSF FWHM), giving seconds to minutes per image. Wildanger 2011 is an exception: each pixel also requires a full ODMR frequency sweep, pushing time/pixel to seconds and total time to hours. SMLM (Pfender, Gu, Barbiero) uses wide-field frame acquisition; total times are estimated at tens of minutes to hours depending on frame count required for sufficient localizations.</p>
 </div>
 
 <script>
