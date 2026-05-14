@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NV Center Physics: Magnetic Field Misalignment</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0e0f14;
+    --bg2: #13141b;
+    --bg3: #1a1c26;
+    --border: #2a2d3e;
+    --accent: #7eb8f7;
+    --accent2: #f7a87e;
+    --accent3: #7ef7b8;
+    --text: #dde3f0;
+    --text-muted: #7a829e;
+    --text-dim: #4a5068;
+    --heading: #eef2ff;
+    --tag-bg: #1e2235;
+    --derive-bg: #111420;
+    --derive-border: #2a3050;
+    --derive-accent: #5a7fc8;
+    --shadow: 0 4px 32px rgba(0,0,0,0.5);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  /* Subtle grain texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 40px 120px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 48px;
+    margin-bottom: 64px;
+  }
+
+  .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--accent), transparent);
+    opacity: 0.3;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    color: var(--heading);
+    line-height: 1.2;
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin-bottom: 64px;
+  }
+
+  .toc-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .toc ol {
+    list-style: none;
+    counter-reset: toc;
+  }
+
+  .toc li {
+    counter-increment: toc;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    min-width: 22px;
+  }
+
+  .toc a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+
+  .toc a:hover { color: var(--accent); }
+
+  /* Sections */
+  section {
+    margin-bottom: 72px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--heading);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--accent2);
+    margin: 32px 0 12px;
+  }
+
+  p { margin-bottom: 16px; }
+
+  /* Math blocks */
+  .math-block {
+    margin: 24px 0;
+    padding: 20px 28px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow-x: auto;
+    text-align: center;
+    position: relative;
+  }
+
+  .math-block .eq-label {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* Derivation boxes */
+  .derivation {
+    margin: 8px 0 20px;
+    border: 1px solid var(--derive-border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .derivation-toggle {
+    width: 100%;
+    background: var(--derive-bg);
+    border: none;
+    cursor: pointer;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    transition: background 0.2s;
+  }
+
+  .derivation-toggle:hover { background: #161825; }
+
+  .derive-icon {
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--derive-accent);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.3s;
+  }
+
+  .derive-icon svg {
+    width: 10px;
+    height: 10px;
+    fill: var(--derive-accent);
+    transition: transform 0.3s;
+  }
+
+  .derivation-toggle.open .derive-icon svg {
+    transform: rotate(90deg);
+  }
+
+  .derive-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--derive-accent);
+    letter-spacing: 0.08em;
+  }
+
+  .derive-hint {
+    font-family: 'Source Serif 4', serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-left: auto;
+  }
+
+  .derivation-content {
+    display: none;
+    padding: 20px 24px 24px;
+    background: var(--derive-bg);
+    border-top: 1px solid var(--derive-border);
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .derivation-content.open { display: block; }
+
+  .derivation-content p { color: var(--text-muted); margin-bottom: 14px; }
+  .derivation-content p:last-child { margin-bottom: 0; }
+
+  .derivation-content .math-block {
+    background: #0d0f18;
+    border-color: #1e2235;
+    margin: 16px 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--derive-accent);
+    min-width: 20px;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  .step-text { color: var(--text-muted); font-size: 15px; }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+  }
+
+  thead tr {
+    background: var(--bg3);
+    border-bottom: 2px solid var(--border);
+  }
+
+  th {
+    padding: 12px 18px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  td {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  td:first-child {
+    font-weight: 600;
+    color: var(--accent2);
+    white-space: nowrap;
+  }
+
+  /* Highlight boxes */
+  .highlight {
+    border-left: 3px solid var(--accent3);
+    background: rgba(126, 247, 184, 0.04);
+    padding: 16px 20px;
+    margin: 24px 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 15px;
+  }
+
+  .highlight.warning {
+    border-left-color: var(--accent2);
+    background: rgba(247, 168, 126, 0.04);
+  }
+
+  .highlight.info {
+    border-left-color: var(--accent);
+    background: rgba(126, 184, 247, 0.04);
+  }
+
+  .highlight-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+
+  .highlight.warning .highlight-label { color: var(--accent2); }
+  .highlight.info .highlight-label { color: var(--accent); }
+  .highlight .highlight-label { color: var(--accent3); }
+
+  /* Inline code */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--tag-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* Key result box */
+  .key-result {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    padding: 24px 28px;
+    margin: 28px 0;
+    border-radius: 0 0 4px 4px;
+  }
+
+  .key-result-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  /* Separator */
+  .sep {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0;
+    color: var(--text-dim);
+  }
+
+  .sep::before, .sep::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .sep span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="label">NV Center Quantum Sensing</div>
+    <h1>Magnetic Field Misalignment<br>in NV Center Experiments</h1>
+    <p class="subtitle">A graduate-level treatment of basis transformations, initialization fidelity, and readout physics</p>
+  </header>
+
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#s1">The NV Hamiltonian and Native Basis</a></li>
+      <li><a href="#s2">Effect of a Misaligned Magnetic Field</a></li>
+      <li><a href="#s3">Green Initialization Under Misalignment</a></li>
+      <li><a href="#s4">The Pi Pulse Under Misalignment</a></li>
+      <li><a href="#s5">State Basis Summary Table</a></li>
+      <li><a href="#s6">Ramsey Tomography and the Bloch Sphere</a></li>
+      <li><a href="#s7">Why Readout is Always in the Native Basis</a></li>
+      <li><a href="#s8">Why MW Pulses Always Address the Eigenbasis</a></li>
+      <li><a href="#s9">The PL Measurement Operator: Full Math</a></li>
+      <li><a href="#s10">General Basis Transformation and Extreme Cases</a></li>
+    </ol>
+  </nav>
+
+  <!-- SECTION 1 -->
+  <section id="s1">
+    <div class="section-number">§ 01</div>
+    <h2>The NV Hamiltonian and Native Basis</h2>
+
+    <p>The NV center is a spin-1 system. In the absence of any external magnetic field, the ground state Hamiltonian is simply the zero-field splitting term:</p>
+
+    <div class="math-block">
+      \( H_0 = D S_z^2 \)
+      <span class="eq-label">1.1</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">What is D and why does this form?</span>
+      </button>
+      <div class="derivation-content">
+        <p>The NV center has C\(_{3v}\) symmetry along its crystal axis (the N–V bond direction, which we call \(\hat{z}\)). The two unpaired electrons experience a spin-spin dipolar interaction. When you average this interaction over the orbital wavefunction, the only surviving term (by symmetry) is proportional to \(S_z^2\). This gives rise to \(D \approx 2.87\) GHz — the zero-field splitting between \(|m_s = 0\rangle\) and \(|m_s = \pm 1\rangle\).</p>
+        <p>Explicitly, \(S_z\) in the spin-1 basis \(\{|+1\rangle, |0\rangle, |-1\rangle\}\) is:</p>
+        <div class="math-block">
+          \( S_z = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & -1 \end{pmatrix} \implies S_z^2 = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 1 \end{pmatrix} \)
+        </div>
+        <p>So \(H_0 = D S_z^2\) is already diagonal: \(|0\rangle\) has energy 0, and \(|\pm 1\rangle\) have energy \(D\). This is why \(\{|0\rangle, |+1\rangle, |-1\rangle\}\) are called the <em>native eigenstates</em>.</p>
+      </div>
+    </div>
+
+    <p>We call \(\{|0\rangle, |{+1}\rangle, |{-1}\rangle\}\) the <strong>native basis</strong> — these are the exact eigenstates of the NV crystal field Hamiltonian, quantized along the NV symmetry axis \(\hat{z}\).</p>
+
+    <p>When we add a perfectly aligned external field \(\vec{B} = B_z \hat{z}\), the full Hamiltonian becomes:</p>
+
+    <div class="math-block">
+      \( H = D S_z^2 + \gamma_e B_z S_z \)
+      <span class="eq-label">1.2</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">Why does an aligned field not change the eigenstates?</span>
+      </button>
+      <div class="derivation-content">
+        <p>The Zeeman term \(\gamma_e B_z S_z\) is proportional to \(S_z\), which is diagonal in the same native basis as \(S_z^2\). So adding it just shifts the eigenvalues — it does not mix the eigenstates at all.</p>
+        <p>The eigenvalues become: \(E_0 = 0\), \(E_{+1} = D + \gamma_e B_z\), \(E_{-1} = D - \gamma_e B_z\). The eigenvectors remain \(|0\rangle\), \(|+1\rangle\), \(|-1\rangle\) — identical to the zero-field case. This is why ODMR sees two peaks split by \(2\gamma_e B_z\) but the basis doesn't change.</p>
+      </div>
+    </div>
+
+    <div class="highlight info">
+      <div class="highlight-label">Key Point</div>
+      As long as \(\vec{B} \parallel \hat{z}\), the eigenstates remain the native basis states. The aligned field only <em>shifts</em> energies; it does not <em>rotate</em> the eigenstates.
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section id="s2">
+    <div class="section-number">§ 02</div>
+    <h2>Effect of a Misaligned Magnetic Field</h2>
+
+    <p>Now suppose \(\vec{B}\) has a transverse component: \(\vec{B} = B_z \hat{z} + B_\perp \hat{x}\). The Hamiltonian becomes:</p>
+
+    <div class="math-block">
+      \( H = D S_z^2 + \gamma_e B_z S_z + \gamma_e B_\perp S_x \)
+      <span class="eq-label">2.1</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">What does \(S_x\) look like, and why does it mix states?</span>
+      </button>
+      <div class="derivation-content">
+        <p>For spin-1, the \(S_x\) matrix in the native basis is:</p>
+        <div class="math-block">
+          \( S_x = \frac{1}{\sqrt{2}}\begin{pmatrix} 0 & 1 & 0 \\ 1 & 0 & 1 \\ 0 & 1 & 0 \end{pmatrix} \)
+        </div>
+        <p>Unlike \(S_z\) and \(S_z^2\), \(S_x\) has off-diagonal elements — it connects \(|0\rangle \leftrightarrow |\pm 1\rangle\). This means any term \(\propto S_x\) in the Hamiltonian will mix the native basis states, making the native basis no longer the eigenbasis.</p>
+        <p>The matrix element \(\langle 0 | S_x | \pm 1 \rangle = 1/\sqrt{2}\) sets the scale of the mixing.</p>
+      </div>
+    </div>
+
+    <p>The transverse field introduces off-diagonal coupling in the native basis. The new eigenstates — found by diagonalizing the full Hamiltonian — are rotated versions of the native states. In the perturbative limit \(\gamma_e B_\perp \ll D\), defining \(\epsilon = \frac{\gamma_e B_\perp}{\sqrt{2}\, D}\), the new eigenstates are:</p>
+
+    <div class="math-block">
+      \( |\tilde{0}\rangle \approx |0\rangle - \epsilon\bigl(|{+1}\rangle + |{-1}\rangle\bigr) \)
+      <span class="eq-label">2.2</span>
+    </div>
+    <div class="math-block">
+      \( |\widetilde{\pm 1}\rangle \approx |\pm 1\rangle + \epsilon\,|0\rangle \)
+      <span class="eq-label">2.3</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">First-order perturbation theory for the mixed eigenstates</span>
+      </button>
+      <div class="derivation-content">
+        <p>Treat \(H' = \gamma_e B_\perp S_x\) as a perturbation on \(H_0 = DS_z^2 + \gamma_e B_z S_z\). The unperturbed eigenstates are the native basis with energies \(E_0 = 0\), \(E_{\pm 1} = D \pm \gamma_e B_z\).</p>
+        <p>First-order perturbation theory gives the corrected eigenstates as:</p>
+        <div class="math-block">
+          \( |n^{(1)}\rangle = |n^{(0)}\rangle + \sum_{m \neq n} \frac{\langle m^{(0)} | H' | n^{(0)} \rangle}{E_n - E_m} |m^{(0)}\rangle \)
+        </div>
+        <p>For \(|0\rangle\), we need the matrix elements \(\langle \pm 1 | \gamma_e B_\perp S_x | 0 \rangle = \gamma_e B_\perp / \sqrt{2}\), and the energy denominator is \(E_0 - E_{\pm 1} \approx -D\) (assuming \(\gamma_e B_z \ll D\)):</p>
+        <div class="math-block">
+          \( |\tilde{0}\rangle \approx |0\rangle + \frac{\gamma_e B_\perp/\sqrt{2}}{0 - D}(|+1\rangle + |-1\rangle) = |0\rangle - \epsilon(|+1\rangle + |-1\rangle) \)
+        </div>
+        <p>where \(\epsilon = \gamma_e B_\perp / (\sqrt{2}\,D)\). Similarly for \(|\pm 1\rangle\): the coupling back to \(|0\rangle\) gives \(\epsilon|0\rangle\) admixture. Note \(|+1\rangle \leftrightarrow |-1\rangle\) coupling is second order (requires two \(S_x\) hops) and thus suppressed by \(\epsilon^2\).</p>
+      </div>
+    </div>
+
+    <p>The inverse relations — expressing the native states in the new eigenbasis — are:</p>
+
+    <div class="math-block">
+      \( |0\rangle \approx |\tilde{0}\rangle + \epsilon\bigl(|\widetilde{+1}\rangle + |\widetilde{-1}\rangle\bigr) \)
+      <span class="eq-label">2.4</span>
+    </div>
+    <div class="math-block">
+      \( |\pm 1\rangle \approx |\widetilde{\pm 1}\rangle - \epsilon\,|\tilde{0}\rangle \)
+      <span class="eq-label">2.5</span>
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section id="s3">
+    <div class="section-number">§ 03</div>
+    <h2>Green Initialization Under Misalignment</h2>
+
+    <p>Green laser illumination initializes the NV spin via the <strong>spin-selective intersystem crossing (ISC)</strong>: states \(|\pm 1\rangle\) decay preferentially through a non-radiative singlet pathway, which funnels population into \(|0\rangle\) after many optical cycles.</p>
+
+    <div class="highlight warning">
+      <div class="highlight-label">Critical Fact</div>
+      The ISC mechanism is governed by the crystal field (C\(_{3v}\) symmetry), not the external magnetic field. Therefore, green light <em>always</em> initializes the native \(|0\rangle\), regardless of misalignment.
+    </div>
+
+    <p>After green initialization, the prepared state in both bases is:</p>
+
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Case</th><th>Native Basis</th><th>New Eigenbasis</th></tr></thead>
+      <tbody>
+        <tr><td>Aligned</td><td>\(|0\rangle\)</td><td>\(|\tilde{0}\rangle\)</td></tr>
+        <tr><td>Misaligned</td><td>\(|0\rangle\)</td><td>\(|\tilde{0}\rangle + \epsilon|\widetilde{+1}\rangle + \epsilon|\widetilde{-1}\rangle\)</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">How do we express \(|0\rangle\) in the new eigenbasis?</span>
+      </button>
+      <div class="derivation-content">
+        <p>We simply invert the transformation. Since the eigenstates form an orthonormal basis, we can expand \(|0\rangle\) as:</p>
+        <div class="math-block">
+          \( |0\rangle = \langle\tilde{0}|0\rangle|\tilde{0}\rangle + \langle\widetilde{+1}|0\rangle|\widetilde{+1}\rangle + \langle\widetilde{-1}|0\rangle|\widetilde{-1}\rangle \)
+        </div>
+        <p>From eq. (2.2), \(\langle\tilde{0}|0\rangle \approx 1\) (to zeroth order in \(\epsilon\)). From eq. (2.3), \(\langle\widetilde{\pm 1}|0\rangle = \epsilon\) (the admixture of \(|0\rangle\) in \(|\widetilde{\pm 1}\rangle\)). So:</p>
+        <div class="math-block">
+          \( |0\rangle \approx |\tilde{0}\rangle + \epsilon|\widetilde{+1}\rangle + \epsilon|\widetilde{-1}\rangle \)
+        </div>
+        <p>This confirms that the initialized state \(|0\rangle\), while trivial in the native basis, is a superposition of all three eigenstates. Since it is not an energy eigenstate, it will immediately begin to evolve under the Hamiltonian.</p>
+      </div>
+    </div>
+
+    <p>The consequence: in the misaligned case, the initialized state is <strong>not an eigenstate of the Hamiltonian</strong>. It will immediately begin to precess, even before any microwave pulse is applied. This is the first source of error.</p>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section id="s4">
+    <div class="section-number">§ 04</div>
+    <h2>The Pi Pulse Under Misalignment</h2>
+
+    <p>ODMR spectroscopy finds the resonance frequency by measuring fluorescence dips as a function of microwave frequency. It measures the actual energy gap between eigenstates — so it always calibrates to the <em>new eigenbasis</em> transition:</p>
+
+    <div class="math-block">
+      \( f_{ODMR} = \frac{E_{\widetilde{-1}} - E_{\tilde{0}}}{h} \)
+      <span class="eq-label">4.1</span>
+    </div>
+
+    <p>A \(\pi\)-pulse at this frequency performs a complete population transfer \(|\tilde{0}\rangle \leftrightarrow |\widetilde{-1}\rangle\). Starting from the misaligned initialized state \(|\tilde{0}\rangle + \epsilon|\widetilde{+1}\rangle + \epsilon|\widetilde{-1}\rangle\), the \(\pi\)-pulse acts as:</p>
+
+    <div class="math-block">
+      \( |\tilde{0}\rangle + \epsilon|\widetilde{+1}\rangle + \epsilon|\widetilde{-1}\rangle \;\xrightarrow{\pi\text{-pulse}}\; |\widetilde{-1}\rangle + \epsilon|\widetilde{+1}\rangle + \epsilon|\widetilde{-1}\rangle \)
+      <span class="eq-label">4.2</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">What does the \(\pi\)-pulse do to each component?</span>
+      </button>
+      <div class="derivation-content">
+        <p>The \(\pi\)-pulse is resonant with the \(|\tilde{0}\rangle \leftrightarrow |\widetilde{-1}\rangle\) transition only. In the rotating wave approximation, it acts as a unitary within the \(\{|\tilde{0}\rangle, |\widetilde{-1}\rangle\}\) subspace:</p>
+        <div class="math-block">
+          \( U_\pi = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix} \quad \text{in the } \{|\tilde{0}\rangle, |\widetilde{-1}\rangle\} \text{ subspace} \)
+        </div>
+        <p>The \(|\widetilde{+1}\rangle\) component is far off-resonant (its transition frequency differs by \(\sim 2D\)) so it is untouched. Therefore: \(|\tilde{0}\rangle \to |\widetilde{-1}\rangle\), \(|\widetilde{-1}\rangle \to |\tilde{0}\rangle\), \(|\widetilde{+1}\rangle \to |\widetilde{+1}\rangle\). Applying this to the input state gives eq. (4.2).</p>
+      </div>
+    </div>
+
+    <p>Collecting terms: \((1+\epsilon)|\widetilde{-1}\rangle + \epsilon|\widetilde{+1}\rangle\). Converting back to the native basis using eqs. (2.4) and (2.5):</p>
+
+    <div class="math-block">
+      \( \text{Final state} \approx |-1\rangle + \epsilon|0\rangle \)
+      <span class="eq-label">4.3</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">Converting \((1+\epsilon)|\widetilde{-1}\rangle + \epsilon|\widetilde{+1}\rangle\) back to native basis</span>
+      </button>
+      <div class="derivation-content">
+        <p>Using \(|\widetilde{\pm 1}\rangle \approx |\pm 1\rangle + \epsilon|0\rangle\) from eq. (2.3):</p>
+        <div class="math-block">
+          \( (1+\epsilon)|\widetilde{-1}\rangle + \epsilon|\widetilde{+1}\rangle \approx (1+\epsilon)(|-1\rangle + \epsilon|0\rangle) + \epsilon(|+1\rangle + \epsilon|0\rangle) \)
+        </div>
+        <p>Expanding and keeping terms to first order in \(\epsilon\):</p>
+        <div class="math-block">
+          \( \approx |-1\rangle + \epsilon|-1\rangle + \epsilon|0\rangle + \epsilon|+1\rangle + \mathcal{O}(\epsilon^2) \)
+        </div>
+        <p>The \(\epsilon|-1\rangle\) term is a small correction to the amplitude of \(|-1\rangle\) (a normalization effect), and \(\epsilon|+1\rangle\) is second-order small compared to the leading contamination. The dominant error is the \(\epsilon|0\rangle\) leakage, giving eq. (4.3).</p>
+      </div>
+    </div>
+
+    <div class="highlight warning">
+      <div class="highlight-label">Key Result</div>
+      After the \(\pi\)-pulse, the state in the native basis is not a clean \(|-1\rangle\) — it has an \(\epsilon\)-order \(|0\rangle\) admixture. Since readout measures native \(|0\rangle\) population, this leakage directly contaminates the measurement.
+    </div>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section id="s5">
+    <div class="section-number">§ 05</div>
+    <h2>State Basis Summary Table</h2>
+
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Step</th>
+          <th>Native Basis \(\{|0\rangle, |\pm 1\rangle\}\)</th>
+          <th>New Eigenbasis \(\{|\tilde{0}\rangle, |\widetilde{\pm 1}\rangle\}\)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>After green (aligned)</td>
+          <td>\(|0\rangle\)</td>
+          <td>\(|\tilde{0}\rangle\)</td>
+        </tr>
+        <tr>
+          <td>After green (misaligned)</td>
+          <td>\(|0\rangle\)</td>
+          <td>\(|\tilde{0}\rangle + \epsilon|\widetilde{+1}\rangle + \epsilon|\widetilde{-1}\rangle\)</td>
+        </tr>
+        <tr>
+          <td>After \(\pi\)-pulse (aligned)</td>
+          <td>\(|-1\rangle\)</td>
+          <td>\(|\widetilde{-1}\rangle\)</td>
+        </tr>
+        <tr>
+          <td>After \(\pi\)-pulse (misaligned)</td>
+          <td>\(|-1\rangle + \epsilon|0\rangle\)</td>
+          <td>\((1+\epsilon)|\widetilde{-1}\rangle + \epsilon|\widetilde{+1}\rangle\)</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p>Notice the complementary structure: in the misaligned case, the state after green is <em>clean in the native basis but dirty in the eigenbasis</em>, while after the \(\pi\)-pulse the state is <em>nearly clean in the eigenbasis but dirty in the native basis</em>. This reflects the fundamental mismatch between initialization/readout (native) and MW control (eigenbasis).</p>
+  </section>
+
+  <!-- SECTION 6 -->
+  <section id="s6">
+    <div class="section-number">§ 06</div>
+    <h2>Ramsey Tomography and the Bloch Sphere</h2>
+
+    <h3>Standard Ramsey Readout</h3>
+
+    <p>In the Ramsey scheme, two calibration measurements bracket the experiment:</p>
+
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Reference</th><th>Sequence</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Bright \(C_{bright}\)</td><td>Green only</td><td>System in \(|0\rangle\) — max fluorescence</td></tr>
+        <tr><td>Dark \(C_{dark}\)</td><td>Green + \(\pi\)-pulse</td><td>System in \(|-1\rangle\) — min fluorescence</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p>The inferred \(|0\rangle\) population from any measurement \(C_{meas}\) is:</p>
+
+    <div class="math-block">
+      \( P_0 = \frac{C_{meas} - C_{dark}}{C_{bright} - C_{dark}} \)
+      <span class="eq-label">6.1</span>
+    </div>
+
+    <h3>Full State Tomography</h3>
+
+    <p>A single readout gives only \(\langle S_z \rangle\). To reconstruct the full Bloch vector, three projections are needed:</p>
+
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Measurement</th><th>Pre-rotation</th><th>Extracts</th></tr></thead>
+      <tbody>
+        <tr><td>\(\langle S_z \rangle\)</td><td>None</td><td>Direct \(P_0\)</td></tr>
+        <tr><td>\(\langle S_x \rangle\)</td><td>\(\pm Y/2\) pulse</td><td>Rotates X → Z axis</td></tr>
+        <tr><td>\(\langle S_y \rangle\)</td><td>\(\pm X/2\) pulse</td><td>Rotates Y → Z axis</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">Why do \(\pm\) pulses cancel systematic errors?</span>
+      </button>
+      <div class="derivation-content">
+        <p>A \(+Y/2\) pulse rotates \(S_x \to S_z\), so the readout gives \(P_0^{+} \propto \langle S_z \rangle + \langle S_x \rangle + \text{offset}\). A \(-Y/2\) pulse gives \(P_0^{-} \propto \langle S_z \rangle - \langle S_x \rangle + \text{offset}\). Taking the difference:</p>
+        <div class="math-block">
+          \( P_0^{+} - P_0^{-} \propto 2\langle S_x \rangle \)
+        </div>
+        <p>The common-mode \(\langle S_z \rangle\) term and any DC offset from laser drift or background fluorescence cancel exactly. This is why pairs of \(\pm\) pulses are used — they give a differential measurement that is immune to slow drifts.</p>
+      </div>
+    </div>
+
+    <h3>Bloch Sphere Evolution: Aligned vs. Misaligned</h3>
+
+    <p>For a state initialized to +X on the Bloch sphere (i.e., \(\frac{1}{\sqrt{2}}(|0\rangle + |-1\rangle)\)) with zero detuning:</p>
+
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Observable</th><th>Aligned</th><th>Misaligned (native frame)</th></tr></thead>
+      <tbody>
+        <tr><td>\(\langle S_x \rangle(t)\)</td><td>\(e^{-t/T_2^*}\)</td><td>Oscillates and decays</td></tr>
+        <tr><td>\(\langle S_y \rangle(t)\)</td><td>\(0\)</td><td>Non-zero — symmetry broken by tilt</td></tr>
+        <tr><td>\(\langle S_z \rangle(t)\)</td><td>\(0\)</td><td>Oscillates — leakage out of XY plane</td></tr>
+        <tr><td>Precession axis</td><td>Native \(\hat{z}\)</td><td>Tilted axis set by \(\vec{B}\)</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p>In the new eigenbasis, the evolution is clean — the Bloch vector simply shrinks along +X with decay \((1-\epsilon^2)e^{-t/T_2^*}\). But since we can only <em>measure</em> in the native basis, the apparent dynamics look complicated and anomalous.</p>
+  </section>
+
+  <!-- SECTION 7 -->
+  <section id="s7">
+    <div class="section-number">§ 07</div>
+    <h2>Why Readout is Always in the Native Basis</h2>
+
+    <p>The fluorescence rate operator is determined by the spin-orbit coupling in the NV excited state. The ISC rate from the excited triplet \(^3E\) to the singlet \(^1A_1\) is:</p>
+
+    <div class="math-block">
+      \( \Gamma_{ISC}^{(m_s)} \propto \bigl|\langle ^1A_1 | H_{SO} | ^3E,\, m_s\rangle\bigr|^2 \)
+      <span class="eq-label">7.1</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">Why is \(H_{SO}\) diagonal in the native \(m_s\) basis?</span>
+      </button>
+      <div class="derivation-content">
+        <p>The spin-orbit coupling is \(H_{SO} = \lambda \vec{L} \cdot \vec{S}\). The crystal field imposes C\(_{3v}\) symmetry along the NV bond axis (native \(\hat{z}\)). By this symmetry, the orbital angular momentum \(\vec{L}\) is quantized along the same native \(\hat{z}\). So \(H_{SO}\) reduces to \(\lambda L_z S_z\) in the relevant subspace — which is diagonal in native \(m_s\).</p>
+        <p>This symmetry is an intrinsic property of the nitrogen-vacancy defect in diamond. It is set by the atomic positions — nitrogen, vacancy, and the surrounding carbon lattice — not by anything external. The external magnetic field \(\vec{B}\) enters only through the Zeeman term, which is far too small to disturb the crystal field or orbital structure.</p>
+        <p>Concretely: \(\Gamma_{ISC}^{(\pm 1)} \gg \Gamma_{ISC}^{(0)}\) because the \(|m_s = \pm 1\rangle\) states have nonzero matrix elements with \(H_{SO}\) while \(|m_s = 0\rangle\) does not (by C\(_{3v}\) symmetry selection rules).</p>
+      </div>
+    </div>
+
+    <p>The total fluorescence rate operator is therefore:</p>
+
+    <div class="math-block">
+      \( \hat{F} = \Gamma_0 |0\rangle\langle 0| + \Gamma_{\pm 1}\bigl(|{+1}\rangle\langle{+1}| + |{-1}\rangle\langle{-1}|\bigr) \)
+      <span class="eq-label">7.2</span>
+    </div>
+
+    <p>This can be rewritten as a constant background plus a contrast term:</p>
+
+    <div class="math-block">
+      \( \hat{F} = \Gamma_{\pm 1}\,\mathbf{I} + (\Gamma_0 - \Gamma_{\pm 1})\,|0\rangle\langle 0| \)
+      <span class="eq-label">7.3</span>
+    </div>
+
+    <div class="highlight">
+      <div class="highlight-label">Key Conclusion</div>
+      All spin-state information in the fluorescence is carried by \(|0\rangle\langle 0|\) — a projector in the <em>native</em> basis. No external field can change this; it is written into the crystal symmetry.
+    </div>
+  </section>
+
+  <!-- SECTION 8 -->
+  <section id="s8">
+    <div class="section-number">§ 08</div>
+    <h2>Why MW Pulses Always Address the Eigenbasis</h2>
+
+    <p>The microwave Hamiltonian is:</p>
+
+    <div class="math-block">
+      \( H_{MW} = \Omega \cos(2\pi f_{MW}\, t)\, S_x \)
+      <span class="eq-label">8.1</span>
+    </div>
+
+    <p>In the rotating wave approximation (RWA), this drive coherently couples states only when:</p>
+
+    <div class="math-block">
+      \( f_{MW} \approx \frac{E_m - E_n}{h} \)
+      <span class="eq-label">8.2</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">The RWA and why off-resonant terms vanish</span>
+      </button>
+      <div class="derivation-content">
+        <p>In the interaction picture, the drive becomes \(H_{MW}^{(I)} \propto \Omega(e^{i(f_{MW} - f_{mn})t} + e^{-i(f_{MW} + f_{mn})t})\). When \(f_{MW} \neq f_{mn}\), both terms oscillate rapidly and average to zero over any timescale long compared to \(1/f_{mn}\). Only when \(f_{MW} \approx f_{mn}\) does the first term become nearly static and drive coherent Rabi oscillations. This is the RWA.</p>
+        <p>The energy levels \(E_n\) are the eigenvalues of the full Hamiltonian \(H = DS_z^2 + \gamma_e \vec{B}\cdot\vec{S}\). ODMR measures these gaps directly by scanning \(f_{MW}\) and observing fluorescence dips. So ODMR automatically finds the correct eigenbasis transition frequency — it has no knowledge of or preference for the native basis.</p>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Property</th><th>Determined by</th><th>Diagonal in</th></tr></thead>
+      <tbody>
+        <tr><td>ISC rates (readout)</td><td>Crystal symmetry C\(_{3v}\)</td><td>Native \(S_z\) basis</td></tr>
+        <tr><td>MW transition frequencies</td><td>Full Hamiltonian eigenvalues</td><td>New eigenbasis</td></tr>
+        <tr><td>ODMR calibration</td><td>Measures eigenvalue gaps</td><td>New eigenbasis</td></tr>
+        <tr><td>Green initialization</td><td>ISC mechanism</td><td>Native basis</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="highlight warning">
+      <div class="highlight-label">The Fundamental Mismatch</div>
+      Initialization and readout are locked to the native basis by crystal physics. MW control is locked to the eigenbasis by resonance physics. No experimental choice can reconcile this — only removing the misalignment does.
+    </div>
+  </section>
+
+  <!-- SECTION 9 -->
+  <section id="s9">
+    <div class="section-number">§ 09</div>
+    <h2>The PL Measurement Operator: Full Math</h2>
+
+    <p>For a general state \(|\psi\rangle = \alpha|\tilde{0}\rangle + \beta|\widetilde{-1}\rangle + \gamma|\widetilde{+1}\rangle\) expressed in the eigenbasis, the measured PL is:</p>
+
+    <div class="math-block">
+      \( \text{PL} = \Gamma_{\pm 1} + (\Gamma_0 - \Gamma_{\pm 1})\,|\langle 0 | \psi\rangle|^2 \)
+      <span class="eq-label">9.1</span>
+    </div>
+
+    <p>We need to evaluate \(\langle 0 | \psi \rangle\). Using the inverse transformation of eq. (2.4):</p>
+
+    <div class="math-block">
+      \( \langle 0 | = \langle \tilde{0}| + \epsilon\langle\widetilde{+1}| + \epsilon\langle\widetilde{-1}| \)
+      <span class="eq-label">9.2</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">Taking the bra of eq. (2.4)</span>
+      </button>
+      <div class="derivation-content">
+        <p>From eq. (2.4): \(|0\rangle \approx |\tilde{0}\rangle + \epsilon|\widetilde{+1}\rangle + \epsilon|\widetilde{-1}\rangle\). Taking the Hermitian conjugate (bra) of both sides gives eq. (9.2) directly, since all coefficients are real in our gauge.</p>
+      </div>
+    </div>
+
+    <p>Applying this to \(|\psi\rangle\) and using orthonormality of the eigenbasis:</p>
+
+    <div class="math-block">
+      \( \langle 0 | \psi\rangle = \alpha\langle\tilde{0}|\tilde{0}\rangle + \beta\langle\tilde{0}|\widetilde{-1}\rangle + \epsilon\gamma\langle\widetilde{+1}|\widetilde{+1}\rangle + \cdots = \alpha + \epsilon\gamma \)
+      <span class="eq-label">9.3</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">Which cross terms survive?</span>
+      </button>
+      <div class="derivation-content">
+        <p>Expanding \(\langle 0|\psi\rangle = (\langle\tilde{0}| + \epsilon\langle\widetilde{+1}| + \epsilon\langle\widetilde{-1}|)(\alpha|\tilde{0}\rangle + \beta|\widetilde{-1}\rangle + \gamma|\widetilde{+1}\rangle)\):</p>
+        <div class="math-block">
+          \( = \alpha\underbrace{\langle\tilde{0}|\tilde{0}\rangle}_{1} + \beta\underbrace{\langle\tilde{0}|\widetilde{-1}\rangle}_{0} + \gamma\underbrace{\langle\tilde{0}|\widetilde{+1}\rangle}_{0} + \epsilon\alpha\underbrace{\langle\widetilde{+1}|\tilde{0}\rangle}_{0} + \epsilon\beta\underbrace{\langle\widetilde{+1}|\widetilde{-1}\rangle}_{0} + \epsilon\gamma\underbrace{\langle\widetilde{+1}|\widetilde{+1}\rangle}_{1} + \cdots \)
+        </div>
+        <p>By orthonormality of the eigenbasis, only the diagonal inner products survive: \(\langle\tilde{0}|\tilde{0}\rangle = 1\) and \(\langle\widetilde{+1}|\widetilde{+1}\rangle = 1\). The \(|\widetilde{-1}\rangle\) component \(\beta\) drops out entirely at first order — it only contributes at \(\mathcal{O}(\epsilon^2)\) through the \(\epsilon\langle\widetilde{-1}|\widetilde{-1}\rangle\) term, but this gives \(\epsilon\beta\) which when squared gives \(\epsilon^2|\beta|^2\). So the \(|-1\rangle\) population only leaks into PL at second order.</p>
+      </div>
+    </div>
+
+    <p>Therefore:</p>
+
+    <div class="math-block">
+      \( |\langle 0|\psi\rangle|^2 = |\alpha + \epsilon\gamma|^2 = |\alpha|^2 + 2\epsilon\,\text{Re}(\alpha^*\gamma) + \epsilon^2|\gamma|^2 \)
+      <span class="eq-label">9.4</span>
+    </div>
+
+    <div class="key-result">
+      <div class="key-result-label">Full PL Expression</div>
+      \[\text{PL} = \Gamma_{\pm 1} + (\Gamma_0 - \Gamma_{\pm 1})\Bigl[|\alpha|^2 + 2\epsilon\,\text{Re}(\alpha^*\gamma) + \mathcal{O}(\epsilon^2)\Bigr]\]
+      <p style="margin-top:12px; color:var(--text-muted); font-size:14px;">
+        The three terms: (1) clean \(|\tilde{0}\rangle\) population you want, (2) first-order cross-contamination from \(|\widetilde{+1}\rangle\) leakage, (3) second-order corrections. Notably, the \(|\widetilde{-1}\rangle\) population \(|\beta|^2\) does not appear until \(\mathcal{O}(\epsilon^2)\).
+      </p>
+    </div>
+  </section>
+
+  <!-- SECTION 10 -->
+  <section id="s10">
+    <div class="section-number">§ 10</div>
+    <h2>General Basis Transformation and Extreme Cases</h2>
+
+    <p>The full transformation is a rotation of the quantization axis by angle \(\theta\) from native \(\hat{z}\) toward \(\hat{B}\). The mixing angle satisfies:</p>
+
+    <div class="math-block">
+      \( \tan(2\theta) = \frac{\gamma_e B_\perp}{D - \gamma_e B_z} \)
+      <span class="eq-label">10.1</span>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">Where does \(\tan(2\theta)\) come from?</span>
+      </button>
+      <div class="derivation-content">
+        <p>Consider the \(2\times 2\) subspace spanned by \(\{|0\rangle, |\text{sym}\rangle\}\) where \(|\text{sym}\rangle = (|+1\rangle + |-1\rangle)/\sqrt{2}\) (the state that couples to \(|0\rangle\) via \(S_x\)). In this subspace the Hamiltonian is:</p>
+        <div class="math-block">
+          \( H_{2\times 2} = \begin{pmatrix} 0 & \gamma_e B_\perp/\sqrt{2} \\ \gamma_e B_\perp/\sqrt{2} & D - \gamma_e B_z \end{pmatrix} \)
+        </div>
+        <p>This is a standard two-level avoided crossing. To diagonalize a \(2\times 2\) matrix \(\begin{pmatrix} a & c \\ c & b \end{pmatrix}\), the rotation angle satisfies \(\tan(2\theta) = 2c/(b-a)\). Substituting \(a=0\), \(b = D - \gamma_e B_z\), \(c = \gamma_e B_\perp/\sqrt{2}\):</p>
+        <div class="math-block">
+          \( \tan(2\theta) = \frac{2 \cdot \gamma_e B_\perp/\sqrt{2}}{D - \gamma_e B_z - 0} = \frac{\sqrt{2}\,\gamma_e B_\perp}{D - \gamma_e B_z} \)
+        </div>
+        <p>The factor of \(\sqrt{2}\) absorbed into the definition of \(\epsilon\) gives the form in eq. (10.1). The eigenstates are then \(\cos\theta|0\rangle \pm \sin\theta|\text{sym}\rangle\).</p>
+      </div>
+    </div>
+
+    <p>The scale that controls the crossover between limits is set by \(D/\gamma_e \approx 102\) mT. Below this, the zero-field splitting protects the native basis; above it, the Zeeman energy dominates.</p>
+
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Condition</th>
+          <th>Mixing Angle \(\theta\)</th>
+          <th>Eigenbasis vs. Native</th>
+          <th>Physical Regime</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>\(B = 0\)</td>
+          <td>\(0\)</td>
+          <td>Identical</td>
+          <td>Zero field — \(D\) alone sets quantization</td>
+        </tr>
+        <tr>
+          <td>\(B_\perp = 0\), \(B_z \neq 0\)</td>
+          <td>\(0\)</td>
+          <td>Identical</td>
+          <td>Perfectly aligned field</td>
+        </tr>
+        <tr>
+          <td>\(\gamma_e B_\perp \ll D\)</td>
+          <td>\(\epsilon \ll 1\)</td>
+          <td>Slightly rotated</td>
+          <td>Small misalignment — our perturbative regime</td>
+        </tr>
+        <tr>
+          <td>\(\gamma_e B_\perp \sim D\)</td>
+          <td>\(\sim \pi/4\)</td>
+          <td>Maximally mixed</td>
+          <td>Level anti-crossing (LAC)</td>
+        </tr>
+        <tr>
+          <td>\(\gamma_e B_\perp \gg D\)</td>
+          <td>\(\pi/4\)</td>
+          <td>Fully rotated to \(\hat{B}\)</td>
+          <td>Zeeman dominates — \(D\) becomes perturbation</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="derivation">
+      <button class="derivation-toggle" onclick="toggleDerive(this)">
+        <span class="derive-icon"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></span>
+        <span class="derive-label">Derivation</span>
+        <span class="derive-hint">Why does \(\theta \to \pi/4\) when \(B_\perp \gg D/\gamma_e\)?</span>
+      </button>
+      <div class="derivation-content">
+        <p>When \(\gamma_e B_\perp \gg D\), the denominator \(D - \gamma_e B_z\) is negligible compared to the numerator. So \(\tan(2\theta) \to \infty\), which means \(2\theta \to \pi/2\), giving \(\theta \to \pi/4\). This is the point of maximum mixing between \(|0\rangle\) and \(|\text{sym}\rangle\).</p>
+        <p>Physically, when the Zeeman energy greatly exceeds the zero-field splitting, the spin quantizes along \(\hat{B}\) rather than the NV axis. The NV's \(D\) term is now a small perturbation on top of the Zeeman Hamiltonian — the roles of \(D\) and \(\gamma_e B\) are swapped from the usual regime.</p>
+        <p>This is why high-field NV experiments (e.g., at tens of Tesla in pulsed magnets) behave qualitatively differently — the native basis intuition completely breaks down.</p>
+      </div>
+    </div>
+
+    <div class="highlight info">
+      <div class="highlight-label">The Level Anti-Crossing</div>
+      At \(\gamma_e B_\perp \sim D\) (around 102 mT of transverse field), the eigenstates are maximally hybridized. This is the NV transverse-field level anti-crossing (LAC). Near the LAC, the native basis is essentially useless as an intuition — the eigenstates are equal superpositions of native states. Initialization fidelity and readout contrast both degrade most severely here.
+    </div>
+
+    <div class="sep"><span>∎</span></div>
+
+    <p style="color: var(--text-muted); font-size: 14px; font-style: italic; text-align: center;">
+      The crossover field scale \(D/\gamma_e \approx 102\) mT sets the boundary between two distinct physical regimes. In nearly all tabletop NV experiments, \(\gamma_e B \ll D\), so the perturbative treatment here is quantitatively accurate.
+    </p>
+
+  </section>
+
+</div>
+
+<script>
+function toggleDerive(btn) {
+  btn.classList.toggle('open');
+  const content = btn.nextElementSibling;
+  content.classList.toggle('open');
+  // Trigger MathJax re-render on first open
+  if (content.classList.contains('open') && !content.dataset.rendered) {
+    content.dataset.rendered = 'true';
+    if (window.MathJax) MathJax.typesetPromise([content]);
+  }
+}
+
+// Smooth scroll for TOC
+document.querySelectorAll('.toc a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Stagger section animations
+document.querySelectorAll('section').forEach((s, i) => {
+  s.style.animationDelay = `${i * 0.05}s`;
+});
+</script>
+</body>
+</html>
