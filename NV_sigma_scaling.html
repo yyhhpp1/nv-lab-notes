@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Positional Accuracy of NV Centers: σ Scaling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>
 window.MathJax = {
   tex: {
@@ -34,8 +36,12 @@ window.MathJax = {
   --gray-mid:   #6b6b68;
   --gray-rule:  #cccccc;
   --bg:         #ffffff;
-  --mono:       "Courier New", monospace;
+  --mono:       "JetBrains Mono", "Courier New", monospace;
   --sans:       -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  /* technique colors */
+  --sted:    #185FA5;  --gsd:     #3B6D11;
+  --csd:     #993556;  --smlm:    #BA7517;
+  --resolft: #533AB7;  --other:   #5F5E5A;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -61,6 +67,26 @@ body {
   margin: 0 auto;
   padding: 2.5rem 2rem 5rem;
 }
+
+/* ── TOC ── */
+.toc {
+  background: var(--blue-box);
+  border: 1px solid var(--blue-mid);
+  border-radius: 4px;
+  padding: 1rem 1.4rem;
+  margin: 0 0 2.4rem;
+  font-size: 0.88rem;
+}
+.toc-title {
+  font-family: var(--mono); font-size: 0.72rem;
+  font-weight: 500; color: var(--blue-dark);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+.toc ol { padding-left: 1.4rem; }
+.toc li { margin-bottom: 0.25rem; }
+.toc a { color: var(--blue-mid); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
 
 /* ── Nav ── */
 .nav {
@@ -101,27 +127,45 @@ hr { border: none; border-top: 1px solid var(--gray-rule); margin: 2rem 0; }
   margin: 1rem 0 0.5rem;
 }
 .key-result .eq-label {
-  font-size: 0.77rem; color: var(--gray-mid); text-align: right; margin-top: 0.25rem;
+  font-family: var(--mono); font-size: 0.72rem; color: var(--gray-mid); text-align: right; margin-top: 0.25rem;
 }
+
+/* ── Callout boxes ── */
+.callout {
+  border-left: 3px solid var(--blue-mid);
+  background: var(--blue-box);
+  padding: 0.7rem 1rem;
+  margin: 1rem 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.93rem;
+}
+.callout::before {
+  display: block; font-family: var(--mono);
+  font-size: 0.68rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--blue-mid);
+  margin-bottom: 0.3rem; content: "Note";
+}
+.callout.warn { border-left-color: #c0392b; }
+.callout.warn::before { color: #c0392b; content: "Warning"; }
+@media (prefers-color-scheme: dark) { .callout.warn { background: #2a1a1a; } }
 
 /* ── Display eq (non-boxed) ── */
 .display-eq { text-align: center; margin: 0.85rem 0; overflow-x: auto; }
 
 /* ── Derivation toggle button ── */
 .deriv-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 0.55rem; margin-bottom: 0.2rem;
-  padding: 3px 11px 3px 8px;
-  font-size: 0.8rem; font-family: var(--sans);
+  display: flex; align-items: center; gap: 0.5rem;
+  width: 100%; text-align: left;
+  margin-top: 0.75rem; margin-bottom: 0;
+  padding: 0.42rem 0.9rem;
+  font-size: 0.85rem; font-family: var(--sans);
   color: var(--blue-derborder);
-  background: transparent;
+  background: var(--blue-der);
   border: 1px solid var(--blue-derborder);
-  border-radius: 20px;
+  border-radius: 4px 4px 0 0;
   cursor: pointer;
-  transition: background 0.15s;
-  user-select: none;
 }
-.deriv-btn:hover { background: var(--blue-der); }
+.deriv-btn:hover { filter: brightness(0.95); }
 .deriv-btn .arrow { font-size: 0.7rem; transition: transform 0.2s; display: inline-block; }
 .deriv-btn.open .arrow { transform: rotate(90deg); }
 
@@ -159,6 +203,7 @@ table { width: 100%; border-collapse: collapse; font-size: 0.87rem; margin: 1.2r
 thead th { background: var(--blue-mid); color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
 tbody tr:nth-child(even) { background: var(--blue-box); }
 tbody tr:nth-child(odd)  { background: var(--bg); }
+tbody tr:hover { background: var(--blue-box); }
 tbody td { padding: 7px 10px; border-bottom: 1px solid var(--gray-rule); vertical-align: top; }
 tbody tr:last-child td { border-bottom: none; }
 .mono-cell { font-family: var(--mono); font-size: 0.82em; }
@@ -176,6 +221,8 @@ tbody tr:last-child td { border-bottom: none; }
 <nav class="nav">
   <a href="index.html">&#8592; Home</a>
   <span class="sep">|</span>
+  <a href="NV_misalignment.html">Note 02: Misalignment</a>
+  <span class="sep">|</span>
   <a href="superresolution_table.html">Superresolution Table</a>
 </nav>
 
@@ -184,8 +231,21 @@ tbody tr:last-child td { border-bottom: none; }
   <div class="subtitle">A summary of &sigma; scaling and the role of superresolution &mdash; with derivations</div>
 </div>
 
+<nav class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#s1">The Single-Emitter Baseline</a></li>
+    <li><a href="#s2">Two NV Centers with Known Separation</a></li>
+    <li><a href="#s3">Two NV Centers with Unknown Separation: the Rayleigh Curse</a></li>
+    <li><a href="#s4"><em>M</em> NV Centers with Known <em>M</em>: the Combinatorial Catastrophe</a></li>
+    <li><a href="#s5">The General Case: <em>M</em> Unknown</a></li>
+    <li><a href="#s6">How Superresolution Rescues the Problem</a></li>
+    <li><a href="#s7">Summary</a></li>
+  </ol>
+</nav>
+
 <!-- ================================================================ §1 -->
-<h2>The Single-Emitter Baseline</h2>
+<h2 id="s1">The Single-Emitter Baseline</h2>
 
 <p>The simplest case is a single, isolated NV center imaged on a diffraction-limited confocal microscope. The PSF has a Gaussian profile of width $\spsf$ (approximately 125&nbsp;nm for NA&nbsp;=&nbsp;1.4 at 637&nbsp;nm). Collecting $N$ photons, the Cram&eacute;r&ndash;Rao bound gives the fundamental limit on positional accuracy:</p>
 
@@ -245,7 +305,7 @@ tbody tr:last-child td { border-bottom: none; }
 <hr>
 
 <!-- ================================================================ §2 -->
-<h2>Two NV Centers with Known Separation</h2>
+<h2 id="s2">Two NV Centers with Known Separation</h2>
 
 <p>Suppose two NV centers are separated by $d$, and $d$ is known precisely. We wish to recover $x_1$ and $x_2$.</p>
 
@@ -278,7 +338,7 @@ tbody tr:last-child td { border-bottom: none; }
 <hr>
 
 <!-- ================================================================ §3 -->
-<h2>Two NV Centers with Unknown Separation: the Rayleigh Curse</h2>
+<h2 id="s3">Two NV Centers with Unknown Separation: the Rayleigh Curse</h2>
 
 <p>Now $d$ is unknown. We must estimate $(x_1, x_2)$ jointly from the image — equivalently, we estimate $(\bar x, d)$. The centroid remains easy, but $d$ becomes the bottleneck.</p>
 
@@ -355,7 +415,7 @@ tbody tr:last-child td { border-bottom: none; }
 <hr>
 
 <!-- ================================================================ §4 -->
-<h2>$M$ NV Centers with Known $M$: the Combinatorial Catastrophe</h2>
+<h2 id="s4">$M$ NV Centers with Known $M$: the Combinatorial Catastrophe</h2>
 
 <h3>Density penalty</h3>
 
@@ -427,7 +487,7 @@ tbody tr:last-child td { border-bottom: none; }
 <hr>
 
 <!-- ================================================================ §5 -->
-<h2>The General Case: $M$ Unknown</h2>
+<h2 id="s5">The General Case: $M$ Unknown</h2>
 
 <p>The most honest version of the problem: $M$ is unknown. We must simultaneously select the model (how many emitters?) and estimate parameters.</p>
 
@@ -488,7 +548,7 @@ tbody tr:last-child td { border-bottom: none; }
 <hr>
 
 <!-- ================================================================ §6 -->
-<h2>How Superresolution Rescues the Problem</h2>
+<h2 id="s6">How Superresolution Rescues the Problem</h2>
 
 <p>All pathologies are controlled by one quantity: the number of emitters per resolution element,</p>
 
@@ -527,7 +587,7 @@ tbody tr:last-child td { border-bottom: none; }
 <hr>
 
 <!-- ================================================================ §7 -->
-<h2>Summary</h2>
+<h2 id="s7">Summary</h2>
 
 <table>
 <thead>

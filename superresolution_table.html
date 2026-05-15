@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Superresolution of NV Centers — Experiments Table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>
 window.MathJax = {
   tex: {
@@ -27,7 +29,7 @@ window.MathJax = {
   --gray-rule:  #cccccc;
   --bg:         #ffffff;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  --mono: "Courier New", monospace;
+  --mono: "JetBrains Mono", "Courier New", monospace;
 
   /* technique colors */
   --sted:    #185FA5;
@@ -192,7 +194,7 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
 <nav class="nav">
   <a href="index.html">&#8592; Home</a>
   <span class="sep">|</span>
-  <a href="NV_sigma_scaling_v2.html">σ Scaling Write-up</a>
+  <a href="NV_sigma_scaling.html">Note 01: &sigma; Scaling</a>
 </nav>
 
 <div class="title-block">
@@ -422,7 +424,7 @@ tr[data-tech="other"]   td.key { border-left-color: var(--other); }
 <div class="footnotes">
   <p><span class="conf">Bold values</span> are confirmed directly from the cited paper. <span class="est-t">Italic values</span> are estimated from context or derived from other reported quantities.</p>
   <p><strong>PSF FWHM</strong> is the width of the effective point spread function — the resolution of the imaging system. For SMLM rows the PSF is intentionally diffraction-limited (~250 nm) and superresolution arises entirely from the localization precision column.</p>
-  <p><strong>Localization precision $\sigma$</strong> is the statistical position uncertainty, scaling approximately as FWHM/$\sqrt{N_\mathrm{ph}}$ for an isolated emitter. See the <a href="NV_sigma_scaling_v2.html">σ scaling write-up</a> for the full derivation.</p>
+  <p><strong>Localization precision $\sigma$</strong> is the statistical position uncertainty, scaling approximately as FWHM/$\sqrt{N_\mathrm{ph}}$ for an isolated emitter. See the <a href="NV_sigma_scaling.html">σ scaling write-up</a> for the full derivation.</p>
   <p><strong>Total scan time notes.</strong> Maurer 2010: 7.2 s/pixel × 50×50 = 5.0 h (confirmed-derivable). Jaskula 2017: 9 s/pixel × ~6400 px est. ≈ 160 h; in practice only small 2D subregions were imaged. STED/GSD/CSD scan times are unreported in the primary papers; estimated values assume ~1–5 ms dwell, a few hundred nm FOV, and Nyquist-sampled steps (2× PSF FWHM), giving seconds to minutes per image. Wildanger 2011 is an exception: each pixel also requires a full ODMR frequency sweep, pushing time/pixel to seconds and total time to hours. SMLM (Pfender, Gu, Barbiero) uses wide-field frame acquisition; total times are estimated at tens of minutes to hours depending on frame count required for sufficient localizations.</p>
 </div>
 
