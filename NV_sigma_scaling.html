@@ -303,6 +303,10 @@ tbody tr:last-child td { border-bottom: none; }
 
 <p><strong>Resolution and positional accuracy are distinct.</strong> $\spsf$ sets the <em>resolution</em> (minimum resolvable separation); $\sigma_x$ sets the <em>positional accuracy</em> (uncertainty on a single known emitter's location). The first is fixed by the optics; the second shrinks as $1/\sqrt{N}$.</p>
 
+<div class="callout">
+  <strong>What $N$ means here.</strong> Throughout this note $N$ denotes the <em>total</em> detected PL photons integrated over the entire scan — the relevant quantity for the position CRB. This is distinct from the per-shot count $\alpha = R\,t_R$ used in spin-readout SNR analyses. A single confocal image built from many laser pulses contributes all of those detected photons to $N$.
+</div>
+
 <p><strong>No superresolution is needed for a single isolated emitter.</strong> A standard confocal ($\spsf = 250$&nbsp;nm) with $N = 10^6$ photons achieves $\sigma_x \approx 0.25$&nbsp;nm &mdash; far below the diffraction limit.</p>
 
 <hr>
@@ -314,7 +318,7 @@ tbody tr:last-child td { border-bottom: none; }
 
 <p>When $d \gg \spsf$ the PSFs barely overlap. Each emitter is effectively isolated and the single-emitter result applies to each with half the photon budget:</p>
 
-<div class="display-eq">$$\sigma_{x_1},\,\sigma_{x_2} \;\approx\; \frac{\spsf}{\sqrt{N/2}} \tag{2a}$$</div>
+<div class="display-eq">$$\sigma_{x_i} \;\approx\; \frac{\spsf}{\sqrt{N/2}}, \qquad i = 1,2 \tag{2a}$$</div>
 
 <button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Why $\sqrt{N/2}$ and not $\sqrt{N}$?</button>
 <div class="deriv-panel">
@@ -377,6 +381,8 @@ tbody tr:last-child td { border-bottom: none; }
 </div>
 
 <p>Because $I(d) \propto d^2$, the Cram&eacute;r&ndash;Rao bound on $d$ diverges as $d \to 0$:</p>
+
+<p class="table-caption" style="margin-bottom:0.6rem">First derived in the imaging context by Helstrom (1976) and elaborated by Ram, Ward &amp; Ober (<em>PNAS</em> 2006). The term "Rayleigh's curse" is due to Tsang, Nair &amp; Lu (<em>PRX</em> 2016), who also showed that spatial-mode demultiplexing (SPADE) can in principle bypass the curse. For photostable emitters like NV centers this direction — engineering the measurement basis rather than the PSF — is an active area.</p>
 
 <div class="key-result">
   $$\sd \;\geq\; \frac{\spsf^2}{d\,\sqrt{N}} \tag{3b}$$
@@ -455,7 +461,7 @@ tbody tr:last-child td { border-bottom: none; }
   $$T_\mathrm{scan} \;\approx\; \frac{64}{8\pi}\cdot\frac{N}{\mathrm{PL}} \;\approx\; \frac{2.5\,N}{\mathrm{PL}} \tag{3e}$$
 </div>
 
-<p>The factor 2.5 is purely geometric (pixel grid area divided by PSF solid angle in pixel units) and does not depend on $d$ or $\spsf$.</p>
+<p>The factor 2.5 is purely geometric: for a 2D Gaussian of width $\spsf$ discretised on pixels of size $\Delta x = \spsf/2$, the PSF solid angle in pixel units is $2\pi\spsf^2/\Delta x^2 = 8\pi$ (integrating the Gaussian within the $1\sigma$ radius). The factor $64/(8\pi) \approx 2.5$ therefore equals the ratio of fit-window area to PSF area in pixel units and is convention-dependent at the order-unity level: using a $2\sigma$ inclusion radius gives $16\pi \approx 50$ effective pixels and a factor of $64/50 \approx 1.3$ instead. All scan time estimates carry a factor-of-2 geometric uncertainty that does not affect the exponential scalings.</p>
 
 <button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Worked example: 50 nm pair on confocal, targeting $\sigma_x = 5$ nm</button>
 <div class="deriv-panel">
@@ -550,11 +556,11 @@ tbody tr:last-child td { border-bottom: none; }
   <p>This goes to zero exponentially fast in $M$ (since $\bar d/\spsf = 1/\sqrt{M} &lt; 1$), explaining why the problem becomes rapidly intractable as $M$ grows.</p>
 </div>
 
-<p>The corresponding worst-case position uncertainty is:</p>
+<p>The corresponding worst-case position uncertainty — obtained by taking $\sigma_{\max}^2 \geq 1/\lambda_{\min}$ and substituting Eq.&nbsp;(4c) — is:</p>
 
-<div class="key-result">
-  $$\sigma_{\max} \;\sim\; \frac{\spsf^M}{\bar d^{\,M-1}\,\sqrt{N}} \tag{4d}$$
-</div>
+<div class="display-eq">$$\sigma_{\max} \;\sim\; \frac{\spsf^M}{\bar d^{\,M-1}\,\sqrt{N}} \tag{4d}$$</div>
+
+<p class="table-caption" style="margin-top:0.2rem;margin-bottom:0.6rem"><em>Note:</em> Eq.&nbsp;(4d) is not an independent result — it is the same as the Rayleigh-compounded part of Eq.&nbsp;(5b) below, without the model-selection and density factors. It is retained here only for pedagogical continuity; Eq.&nbsp;(5b) is the complete expression and should be used for numerical estimates.</p>
 
 <button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> Derive Eq.&nbsp;(4d) from $\lambda_\mathrm{min}$</button>
 <div class="deriv-panel">
@@ -604,6 +610,7 @@ tbody tr:last-child td { border-bottom: none; }
   <p>But this argument must be applied $M^*-1$ times — once for each successive emitter being added to the model. Each additional emitter contributes another factor of $(\spsf/d_{\min})^2$ to the threshold (because each new separation has its own Rayleigh curse). Multiplying $M^*-1$ factors together:</p>
   <div class="display-eq">$$N_{\mathrm{threshold}} \sim \left(\frac{\spsf}{d_{\min}}\right)^{2(M^*-1)} \sim \left(\frac{\spsf}{d_{\min}}\right)^{2M^*}$$</div>
   <p>absorbing the $-1$ in the exponent into the $\sim$. This exponential growth in $M^*$ is why model selection becomes astronomically hard for densely packed emitters: for $d_{\min} = \spsf/10$ and $M^* = 5$ you need $10^{10}$ photons just to correctly count the emitters, before you even start localizing them.</p>
+  <p><em>Which model comparison does this correspond to?</em> The exponent $2M^*$ arises from the full sequence of $M^*-1$ incremental tests (each costing a factor $(\spsf/d_\mathrm{min})^2$), equivalent to testing $M = M^*$ vs $M = 0$ at the cluster patch. The more conservative test — distinguishing $M^*$ from $M^*-1$ in isolation — gives exponent $2(M^*-1)$, which for $M^*=5$ differs by a factor of $(\spsf/d_\mathrm{min})^2 \approx 18$ in $N_\mathrm{threshold}$. Both scale exponentially in $M^*$ and the practical conclusion is unchanged; the precise value depends on the test statistic and prior.</p>
 </div>
 
 <p><strong>High-$N$ regime.</strong> Once $N \gg N_{\mathrm{threshold}}$, the correct $M^*$ is selected reliably and the model-selection penalty $g \to 1$. The remaining error is governed purely by the Rayleigh curse on the resolved separations:</p>
@@ -615,10 +622,12 @@ tbody tr:last-child td { border-bottom: none; }
 <p>This is the same as the known-$M$ worst case from Eq.&nbsp;(4d). The important message is that successfully identifying $M^*$ does not rescue you from the Rayleigh curse — it merely removes the additional <em>systematic</em> bias due to model mismatch. For densely packed emitters with $d_{\min} \ll \spsf$, this regime may only be reached at photon counts that are physically unrealizable, making the intermediate regime effectively the permanent operating condition.</p>
 
 <div class="callout">
-  <strong>Practical implication:</strong> With $d_{\min} = 50$&nbsp;nm, $M^* = 5$, and confocal $\spsf \approx 213$&nbsp;nm, the ratio $\spsf/d_{\min} \approx 4.3$. The model-selection threshold is $N_{\mathrm{threshold}} \sim (4.3)^{10} \approx 2\times 10^6$ photons — about 40&nbsp;s at 50&nbsp;kcps, which is reachable. But once past the threshold, the Rayleigh factor $(\spsf/d_{\min})^{M^*-1} = (4.3)^4 \approx 340$ multiplies $\sigma_x$, meaning you need $340^2 \approx 10^5$ times more photons than the single-emitter bound just to match isolated-emitter accuracy — completely out of reach. With superresolution ($\spsf^{\mathrm{eff}} \approx 21$&nbsp;nm, 50&nbsp;nm FWHM), $\spsf^{\mathrm{eff}}/d_{\min} \approx 0.43 &lt; 1$: $M_{\mathrm{eff}} \leq 1$ and all multi-emitter pathologies vanish. This is the quantitative argument for why superresolution (§7) is not a luxury but a necessity once $d_{\min}$ falls below $\spsf$.
+  <strong>Practical implication:</strong> With $d_{\min} = 50$&nbsp;nm, $M^* = 5$, and confocal $\spsf \approx 213$&nbsp;nm, the ratio $\spsf/d_{\min} \approx 4.3$. The model-selection threshold is $N_{\mathrm{threshold}} \sim (4.3)^{10} \approx 2\times 10^6$ photons — about 98&nbsp;s at 50&nbsp;kcps using the raster scan formula Eq.&nbsp;(3e). But once past the threshold, the Rayleigh factor $(\spsf/d_{\min})^{M^*-1} = (4.3)^4 \approx 340$ multiplies $\sigma_x$, meaning you need $340^2 \approx 10^5$ times more photons than the single-emitter bound just to match isolated-emitter accuracy — completely out of reach. With superresolution ($\spsf^{\mathrm{eff}} \approx 21$&nbsp;nm, 50&nbsp;nm FWHM), $\spsf^{\mathrm{eff}}/d_{\min} \approx 0.43 &lt; 1$: $M_{\mathrm{eff}} \leq 1$ and all multi-emitter pathologies vanish. This is the quantitative argument for why superresolution (§7) is not a luxury but a necessity once $d_{\min}$ falls below $\spsf$.
 </div>
 
 <h3>Combined scaling</h3>
+
+<p>This is the central result of the note. Every factor has a distinct physical origin and can be attacked independently:</p>
 
 <div class="key-result">
   $$\sx \;\sim\;
@@ -650,6 +659,20 @@ tbody tr:last-child td { border-bottom: none; }
     <div class="step-label">Factor 4: $g(N, M^*, d_{\min})$</div>
     <p>The model-selection penalty. When $N &lt; N_{\mathrm{threshold}}$ from Eq.&nbsp;(5a), $g \gg 1$ because you are likely fitting the wrong $M$ and the positional errors have a large systematic component. Once $N \gg N_{\mathrm{threshold}}$, $g \to 1$ and only the first three factors matter. In practice for $M^* \geq 4$ at sub-diffraction densities, $g$ never reaches 1 with realistic photon budgets.</p>
   </div>
+</div>
+
+<h3>When prior information rescues the counting problem</h3>
+
+<p>The threshold $N_\mathrm{threshold} \sim (\spsf/d_\mathrm{min})^{2M^*}$ assumes uniform priors on $M$ and on emitter positions — the worst case. When structural prior information is available, the effective threshold drops dramatically.</p>
+
+<p>For NV centers in a lattice (known implantation geometry, crystal sites, or a diamond vacancy lattice), the Bayesian model evidence integrates out over position priors constrained to lattice sites with width $\sigma_\mathrm{site} \ll a_L$:</p>
+
+<div class="display-eq">$$P(\mathrm{data}\mid M) = \int d^{2M}\mathbf{r}\ P(\mathrm{data}\mid\mathbf{r})\,\pi(\mathbf{r}\mid\mathrm{lattice})\,\pi(M\mid\bar n)$$</div>
+
+<p>With a Poisson occupancy prior (mean $\bar n \lesssim 1$ per site), brightness alone — total PL in the cluster, which steps by $N_1$ per occupied site with Poisson noise $\sqrt{M N_1}$ — can discriminate $M$ when $N_1 \gtrsim M$, i.e. a few hundred photons per NV. This shifts the bottleneck from model counting back to localization (§5), which is then handled by superresolution (§7).</p>
+
+<div class="callout">
+  <strong>Practical implication for lattice experiments:</strong> if you know the lattice constant $a_L$ and have a prior on $\bar n$ from implantation dose, the frequentist $N_\mathrm{threshold}$ is pessimistic by orders of magnitude. Bayesian evidence with a tight positional prior can correctly identify $M^*$ from brightness alone at $\sim 10^2$–$10^3$ photons per emitter — well within a single confocal scan. The harder problem then shifts to localization accuracy, not emitter counting.
 </div>
 
 <hr>
@@ -688,6 +711,8 @@ tbody tr:last-child td { border-bottom: none; }
 </div>
 
 <p><strong>Stochastic emitter thinning (STORM, single-spin STORM).</strong> Keep $\seff \approx 250$&nbsp;nm but reduce $\rho_\mathrm{eff}$ per frame by switching most emitters off. Each frame has $M_\mathrm{eff} \ll 1$; the full image is reconstructed over many frames at a time cost of $1/(\text{active fraction})$.</p>
+
+<p><strong>Targeted excitation (MINFLUX).</strong> A third strategy: rather than imaging the full FOV, place an excitation doughnut's zero at sequential positions near a suspected emitter and read photon counts as a function of beam position. The CRB scales as $\sigma_x = L/\sqrt{8N}$ where $L$ is the orbit radius (Balzarotti et al. <em>Science</em> 2017). With $L \ll \spsf$, MINFLUX is more photon-efficient than confocal by a factor $(\spsf/L)^2$ at the same precision — sub-nm localization with $\sim 10^2$ photons is achievable. For NV centers, photostability makes MINFLUX particularly attractive; the main requirement is isolating one emitter per targeted acquisition (combine with stochastic thinning or spin-contrast for clusters).</p>
 
 <p>In both cases superresolution does not improve the $1/\sqrt{N}$ scaling — it <em>rescues the prefactor</em> by enforcing $M_\mathrm{eff} \leq 1$.</p>
 
@@ -755,14 +780,24 @@ tbody tr:last-child td { border-bottom: none; }
   <td>Rayleigh curse on $d$</td>
 </tr>
 <tr>
-  <td>$M^*\!=\!5$ NV, uniform density</td>
-  <td>$M$ known</td>
+  <td>$M^*\!=\!5$ NV, uniformly distributed ($\bar d \sim \spsf/\sqrt{M}$)</td>
+  <td>$M$ known, emitters spread over PSF</td>
   <td class="mono-cell">$\spsf\sqrt{M}/\sqrt{N}$</td>
   <td class="mono-cell">9,100</td>
   <td class="mono-cell">64</td>
   <td class="mono-cell">7.1 ms</td>
   <td class="mono-cell">0.45 s</td>
-  <td>Density + $M!$ permutations</td>
+  <td>Density penalty only — optimistic lower bound; applies only when $d_\mathrm{min} \sim \bar d \sim \spsf/\sqrt{M}$</td>
+</tr>
+<tr>
+  <td>$M^*\!=\!5$ NV, clustered ($d_\mathrm{min} = 50$&nbsp;nm $\ll \spsf$)</td>
+  <td>$M$ known, emitters close together</td>
+  <td class="mono-cell">$\spsf^M/(d_\mathrm{min}^{M-1}\sqrt{N})$</td>
+  <td class="mono-cell">$2\times10^8$</td>
+  <td class="mono-cell">64</td>
+  <td class="mono-cell">153 s</td>
+  <td class="mono-cell">2.7 hr</td>
+  <td>Compounded Rayleigh curse — the realistic case when $d_\mathrm{min} \ll \spsf$</td>
 </tr>
 <tr>
   <td>$M^*\!=\!5$ NV, $d_\mathrm{min}\!=\!50$&nbsp;nm, $M$ unknown</td>
@@ -787,7 +822,7 @@ tbody tr:last-child td { border-bottom: none; }
 </tbody>
 </table>
 
-<p class="table-caption"><strong>Table 1.</strong> $\sigma$ scaling across all regimes, with photon budget and scan time to achieve $\sigma_x = 5$&nbsp;nm. Parameters: confocal $\spsf = 213$&nbsp;nm (500&nbsp;nm FWHM), superresolution $\seff = 21.3$&nbsp;nm (50&nbsp;nm FWHM), $d = 50$&nbsp;nm, PL = 50&nbsp;kcps, $M^* = 5$. All rows use pixel size $\Delta x = \spsf/2$ (confocal) or $\seff/2$ (superres) with an $8\times8 = 64$-pixel fit window; the dwell time per pixel is $\tau = N/(8\pi\cdot\mathrm{PL})$ and the total scan time is $T_\mathrm{scan} = 64\,\tau \approx 2.5\,N/\mathrm{PL}$ (Eq.&nbsp;3e). The superresolution entry is per-emitter fit-window time; scanning the same physical field of view as confocal requires an additional $(\spsf/\seff)^2 = 100\times$ more pixels. The $M$-unknown row assumes the high-$N$ regime where model selection has succeeded; the $N_\mathrm{threshold}$ for correctly counting 5 emitters is $\sim 2\times10^6$ photons (40&nbsp;s), <em>before</em> the localization budget above.</p>
+<p class="table-caption"><strong>Table 1.</strong> $\sigma$ scaling across all regimes, with photon budget and scan time to achieve $\sigma_x = 5$&nbsp;nm. Parameters: confocal $\spsf = 213$&nbsp;nm (500&nbsp;nm FWHM), superresolution $\seff = 21.3$&nbsp;nm (50&nbsp;nm FWHM), $d = 50$&nbsp;nm, PL = 50&nbsp;kcps, $M^* = 5$. All rows use pixel size $\Delta x = \spsf/2$ (confocal) or $\seff/2$ (superres) with an $8\times8 = 64$-pixel fit window; the dwell time per pixel is $\tau = N/(8\pi\cdot\mathrm{PL})$ and the total scan time is $T_\mathrm{scan} = 64\,\tau \approx 2.5\,N/\mathrm{PL}$ (Eq.&nbsp;3e) — applied consistently to all rows. The two $M^*=5$ known rows show the optimistic limit (emitters uniformly spread, so $d_\mathrm{min} \sim \bar d \sim \spsf/\sqrt{M}$, Eq.&nbsp;4b) and the realistic clustered limit ($d_\mathrm{min} = 50$&nbsp;nm $\ll \spsf$, Eq.&nbsp;4d); the four-order-of-magnitude gap between them is the Rayleigh compounding. The $M$-unknown row assumes model selection has already succeeded ($N \gg N_\mathrm{threshold} \approx 2\times10^6$ photons, $\approx 98$&nbsp;s) and shows only the subsequent localization cost. The superresolution entry is per-emitter fit-window time; scanning the same physical FOV requires $(\spsf/\seff)^2 = 100\times$ more pixels.</p>
 
 
 <hr>
@@ -869,6 +904,8 @@ tbody tr:last-child td { border-bottom: none; }
 <div class="key-result">
   $$\sigma_{\max} \;\sim\; \frac{\spsf}{\sqrt{N}\,\left[\alpha_{\min}^2 + (d_{\min}/\spsf)^2\right]^{(M-1)/2}} \tag{7g}$$</div>
 
+<p class="table-caption" style="margin-top:0.3rem;margin-bottom:0.6rem"><em>Note on derivation status:</em> Eq.&nbsp;(7g) is a heuristic interpolation between the rigorous $M=2$ result (Eqs.&nbsp;7b–d, traceable to Chao, Ward &amp; Ober 2013) and the equal-intensity compounding (Eq.&nbsp;4c). A rigorous derivation for $M > 2$ would require evaluating the full $M$-emitter Fisher matrix with non-degenerate intensities, which is not done here. The qualitative claim — that intensity asymmetry sets a floor on $\lambda_\mathrm{min}$ independent of $d$, and that this floor compounds as $(M-1)$ — is robust; the exact functional form of the interpolation is not.</p>
+
 <button class="deriv-btn" onclick="toggle(this)"><span class="arrow">&#9658;</span> How does Eq.&nbsp;(7g) reduce to the equal-intensity results?</button>
 <div class="deriv-panel">
   <p>Setting $\alpha_\mathrm{min} = 0$ in Eq.&nbsp;(7g):</p>
@@ -876,6 +913,18 @@ tbody tr:last-child td { border-bottom: none; }
   <p>which is exactly Eq.&nbsp;(4d). Setting $d_\mathrm{min} = 0$:</p>
   <div class="display-eq">$$\sigma_\mathrm{max} \sim \frac{\spsf}{\alpha_\mathrm{min}^{M-1}\sqrt{N}}$$</div>
   <p>The compounding is now in $\alpha_\mathrm{min}$ rather than $d_\mathrm{min}/\spsf$ — still exponential in $M$ but no longer diverges as $d\to 0$.</p>
+</div>
+
+<h3>How to engineer asymmetry with NV centers</h3>
+
+<p>Identical NVs in identical environments have $\alpha \lesssim 0.05$ — intrinsic intensity asymmetry is negligible. Two practical routes can increase it:</p>
+
+<p><strong>1. Crystallographic orientation.</strong> NV$^-$ centers have four possible C$_3$ axes along $\langle 111 \rangle$ directions. NVs along different axes have different transition-dipole orientations relative to the excitation polarization. With linearly polarized excitation, the PL contrast between cross-polarized NVs can reach $\alpha \sim 0.5$; adding a polarization analyzer in detection pushes this to $\alpha \sim 0.8$. The four-orientation random distribution means that in an unaligned ensemble roughly half of all NV pairs include cross-polarized emitters, providing asymmetry automatically with no extra hardware beyond a polarizer.</p>
+
+<p><strong>2. Strain-shifted ZPL at low temperature.</strong> Below $\sim 20$&nbsp;K each NV$^-$ has a sharp zero-phonon line (ZPL) at 637&nbsp;nm whose center shifts with local strain by typically MHz–GHz. A spectral filter or tunable narrowband excitation can selectively address individual NVs — effectively $\alpha = 1$ per spectral channel. This is the deterministic equivalent of STORM spectral demultiplexing, but without blinking. Requires cryogenic operation.</p>
+
+<div class="callout">
+  Polarization is the low-cost option ($\alpha \sim 0.5$ from random orientations, no cryogenics); spectral ZPL demultiplexing is the high-performance option ($\alpha \to 1$, but requires $T \lesssim 20$&nbsp;K). From Table&nbsp;2, the difference between $\alpha_\mathrm{min} = 0.5$ and $\alpha_\mathrm{min} = 0$ is a $\sim 100\times$ reduction in required integration time for $M^*=5$ — a meaningful gain for room-temperature experiments where cryogenics is impractical.
 </div>
 
 <h3>Practical numbers for $M^* = 5$, $d = 50$ nm</h3>
@@ -952,9 +1001,9 @@ tbody tr:last-child td { border-bottom: none; }
 
 <p>Before any localization can begin, the correct model ($M^* = 5$) must be identified. From Eq.&nbsp;(5a), the photon threshold for correctly distinguishing $M^*$ from $M^*-1$ emitters is:</p>
 
-<div class="display-eq">$$N_\mathrm{threshold} \sim \left(\frac{\spsf}{d_\mathrm{min}}\right)^{2M^*} = (4.3)^{10} \approx 2\times 10^6 \text{ photons} \quad(\approx 40\;\mathrm{s})$$</div>
+<div class="display-eq">$$N_\mathrm{threshold} \sim \left(\frac{\spsf}{d_\mathrm{min}}\right)^{2M^*} = (4.3)^{10} \approx 2\times 10^6 \text{ photons} \quad(\approx 98\;\mathrm{s\;using\;Eq.\;(3e)})$$</div>
 
-<p>This 40&nbsp;s is the cost just to correctly <em>count</em> the emitters — before any attempt to localize them. And this is the theoretical minimum; real model selection tests (BIC, likelihood ratio, AIC) require considerably more photons to achieve reliable decisions in practice.</p>
+<p>This 98&nbsp;s is the cost just to correctly <em>count</em> the emitters — before any attempt to localize them. And this is the theoretical minimum; real model selection tests (BIC, likelihood ratio, AIC) require considerably more photons to achieve reliable decisions in practice.</p>
 
 <div class="callout warn">
   <strong>The 50 nm accuracy case does not escape this.</strong> Requiring only 50&nbsp;nm accuracy instead of 5&nbsp;nm reduces the localization photon budget from $2\times10^8$ to $\sim 2\times10^4$ — a factor of $10^4$ cheaper. But $N_\mathrm{threshold} \approx 2\times10^6$ is independent of the accuracy target. You must still solve the counting problem first, and that costs the same regardless of how accurately you want to localize afterward.
@@ -984,9 +1033,9 @@ tbody tr:last-child td { border-bottom: none; }
 
 <p>Even if barriers 1–3 were solved, the experiment itself violates the assumptions of the model over the timescales required:</p>
 
-<p><strong>Charge state switching.</strong> NV centers stochastically convert between NV$^-$ (useful signal) and NV$^0$ (no useful signal) under laser illumination on timescales of seconds to minutes. During a 40&nbsp;s integration, the effective number of emitters $M_\mathrm{eff}(t)$ fluctuates. The image you record is a time-average over a non-stationary process with variable $M$ — a fundamentally different statistical problem from the fixed-$M$ model the CRB assumes.</p>
+<p><strong>Charge state switching.</strong> NV centers stochastically convert between NV$^-$ (useful signal) and NV$^0$ (no useful signal) under laser illumination on timescales of seconds to minutes. During the $\sim$98&nbsp;s model-selection integration, the effective number of emitters $M_\mathrm{eff}(t)$ fluctuates. The image you record is a time-average over a non-stationary process with variable $M$ — a fundamentally different statistical problem from the fixed-$M$ model the CRB assumes.</p>
 
-<p><strong>Mechanical drift.</strong> Confocal scanning over tens of seconds with galvo mirrors or piezo stages introduces drift of typically 1–5&nbsp;nm per second. For a 40&nbsp;s model-selection scan the accumulated drift is 40–200&nbsp;nm — larger than the cluster itself. The effective PSF seen by the detector is the true PSF convolved with the drift trajectory, broadening it and destroying the position information the model relies on.</p>
+<p><strong>Mechanical drift.</strong> Confocal scanning over tens of seconds with galvo mirrors or piezo stages introduces drift of typically 1–5&nbsp;nm per second. For a 98&nbsp;s model-selection scan the accumulated drift is 100–500&nbsp;nm — larger than the cluster itself. The effective PSF seen by the detector is the true PSF convolved with the drift trajectory, broadening it and destroying the position information the model relies on.</p>
 
 <p><strong>Background fluorescence.</strong> Bulk diamond surrounding the cluster contributes background photons that reduce the signal-to-noise ratio. The CRB with background $b$ (counts per pixel) is modified to $\sigma_x \sim \spsf/\sqrt{N_\mathrm{sig}^2/(N_\mathrm{sig}+N_\mathrm{bg})}$. For background-to-signal ratios of 0.5–5, typical in implanted diamond, the effective photon count is reduced by $2\times$–$10\times$, multiplying all the time estimates in Table&nbsp;1 by the same factor.</p>
 
@@ -1006,7 +1055,7 @@ tbody tr:last-child td { border-bottom: none; }
   <tbody>
     <tr>
       <td>Model selection threshold</td>
-      <td>Sets floor at $\sim$40&nbsp;s regardless of accuracy target</td>
+      <td>Sets floor at $\sim$98&nbsp;s regardless of accuracy target (using $T = 2.5N/R$, Eq.&nbsp;3e)</td>
       <td>Yes, in principle</td>
     </tr>
     <tr>
@@ -1041,9 +1090,72 @@ tbody tr:last-child td { border-bottom: none; }
 
 <p>The fundamental insight is that barriers 4 (blinking) and 5 (drift) are not statistical — they cannot be overcome by collecting more photons. They invalidate the stationary point-source model that the entire CRB framework rests on. This is why the field has moved to superresolution and spin-based contrast techniques: not because the photon budget is unachievable, but because the physical model breaks down long before the photon budget is reached.</p>
 
+
+<p class="table-caption"><strong>Table 3.</strong> Practical barriers to confocal resolution of five NV centers. Barriers 4 and 5 (charge state blinking and drift, both under Barrier 4 heading above) are qualitatively different from the first three: they introduce systematic errors or actively worsen with longer integration, meaning no amount of patience overcomes them within the confocal framework.</p>
+
+<p>The fundamental insight is that charge-state blinking and mechanical drift are not statistical — they cannot be overcome by collecting more photons. They invalidate the stationary point-source model that the entire CRB framework rests on. This is why the field has moved to superresolution and spin-based contrast techniques: not because the photon budget is unachievable, but because the physical model breaks down long before the photon budget is reached.</p>
+
 <div class="callout">
   <strong>What actually works.</strong> The experiments that have resolved multiple NV centers use one of three strategies, each of which sidesteps the barriers above: (1) <strong>spin-dependent contrast (single-spin STORM)</strong> — selectively driving individual NV spins with microwave pulses to switch emitters on and off one at a time, reducing $M_\mathrm{eff} = 1$ per frame and eliminating barriers 1–3 entirely; (2) <strong>deterministic PSF narrowing (STED, spin-RESOLFT)</strong> — shrinking $\seff$ until $d_\mathrm{min} > \seff$ so the cluster is resolved and the multi-emitter machinery never applies; (3) <strong>prior-assisted localization</strong> — using ion-beam implantation at known positions to supply a strong prior on $M^*$ and approximate emitter locations, converting the global optimization into a local refinement. All three approaches enforce $M_\mathrm{eff} \leq 1$ per measurement frame, which is the common thread identified in §7.
 </div>
+
+<h3>Experimental decision tree</h3>
+
+<p>Given a lattice spacing $a_L$ and target positional accuracy $\sigma_x$, the following guide selects the appropriate strategy:</p>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr><th>Condition</th><th>Regime</th><th>Recommended approach</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>$a_L > \spsf$</td>
+      <td>Emitters resolved</td>
+      <td>Confocal works directly — single-emitter CRB applies</td>
+    </tr>
+    <tr>
+      <td>$a_L < \spsf$ and $\sigma_x > a_L$</td>
+      <td>Unresolved, coarse accuracy</td>
+      <td>Confocal + careful PSF fitting may work; Rayleigh penalty present but not catastrophic</td>
+    </tr>
+    <tr>
+      <td>$a_L < \spsf$ and $\sigma_x \lesssim a_L$, general purpose</td>
+      <td>Unresolved, nm accuracy needed</td>
+      <td><strong>STED</strong> — deterministic, works at room temperature</td>
+    </tr>
+    <tr>
+      <td>$a_L < \spsf$, MW gradient infrastructure available</td>
+      <td>Unresolved, spin contrast available</td>
+      <td><strong>Spin-RESOLFT</strong> — uses existing MW setup, sub-diffraction without high STED power</td>
+    </tr>
+    <tr>
+      <td>$\sigma_x \lesssim 1$&nbsp;nm, photostable emitters</td>
+      <td>Sub-nm targets</td>
+      <td><strong>MINFLUX</strong> — most photon-efficient; combine with stochastic or spin isolation</td>
+    </tr>
+    <tr>
+      <td>Sample tolerates stochastic blinking, cryogenics available</td>
+      <td>Sparse activation per frame</td>
+      <td><strong>NV-PALM / spectral demultiplexing</strong> — $\alpha \to 1$ per channel</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Beyond positions: combining with spin readout</h3>
+
+<p>This note has focused entirely on positional accuracy. For the NV experiment, the downstream goal is spin readout. The two problems have orthogonal failure modes: Rayleigh curse in the optical positioning step, and shot noise in the spin readout step. The optimal experiment combines them:</p>
+
+<p>Once optical superresolution enforces $M_\mathrm{eff} \leq 1$, each NV occupies its own resolution element and its spin can be read out individually — no $K^2$ shot-noise penalty from combined emission. The cleanest protocol:</p>
+
+<p>1. <strong>SR scan (ms timescale):</strong> localize all NVs in the field of view using STED or spin-RESOLFT. Store positions.</p>
+<p>2. <strong>Spin readout (seconds timescale):</strong> hold beam fixed at each NV position; apply field-gradient + Ramsey sequence to read spins frequency-by-frequency.</p>
+
+<p>Both steps benefit from the same enabling condition: $M_\mathrm{eff} \leq 1$. For a $5\times5$ lattice with mean occupancy $\bar n = 1$, total wall-clock time is $\sim 1$–$10$&nbsp;s. A separate note covers the spin-readout SNR and gradient-ODMR scaling in detail.</p>
+
+<script>
+function toggle(btn) {
   btn.classList.toggle('open');
   const panel = btn.nextElementSibling;
   panel.classList.toggle('open');
